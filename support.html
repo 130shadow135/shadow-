@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Contrôle de Maintenance</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #1a1a2e;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      border: none;
+      border-radius: 5px;
+      color: #fff;
+      font-size: 16px;
+      margin: 10px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      // Vérification d'accès : seul un admin peut accéder à cette page
+      let currentUser = localStorage.getItem("currentUser");
+      if (!currentUser) {
+        alert("Accès interdit. Vous devez être connecté.");
+        window.location.href = "authentification.html";
+      } else {
+        currentUser = JSON.parse(currentUser);
+        if (currentUser.role !== "Admin") {
+          alert("Accès réservé aux administrateurs.");
+          window.location.href = "authentification.html";
+        }
+      }
+      updateButtonText();
+    });
+    
+    // Mise à jour du texte du bouton selon l'état du mode maintenance
+    function updateButtonText() {
+      const maintenance = localStorage.getItem('maintenance');
+      const btn = document.getElementById('toggleMaintenance');
+      if (maintenance === 'true') {
+        btn.innerText = "Désactiver le mode maintenance";
+      } else {
+        btn.innerText = "Activer le mode maintenance";
+      }
+    }
+    
+    // Bascule le flag maintenance dans le localStorage
+    function toggleMaintenance() {
+      const maintenance = localStorage.getItem('maintenance');
+      if (maintenance === 'true') {
+        localStorage.setItem('maintenance', 'false');
+        alert("Le mode maintenance est désactivé.");
+      } else {
+        localStorage.setItem('maintenance', 'true');
+        alert("Le mode maintenance est activé. Les autres pages seront mises hors service.");
+      }
+      updateButtonText();
+    }
+  </script>
+</head>
+<body>
+  <h1>Contrôle de Maintenance</h1>
+  <button id="toggleMaintenance" onclick="toggleMaintenance()">Activer/Désactiver Maintenance</button>
+</body>
+</html>

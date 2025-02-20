@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page d'Administration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a2e;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .auth-box {
+            background-color: #16213e;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            width: 300px;
+            text-align: center;
+        }
+        .auth-box h2 {
+            color: #e0e0e0;
+            margin-bottom: 20px;
+        }
+        .auth-box input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 5px;
+        }
+        .auth-box button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .auth-box button:hover {
+            background-color: #45a049;
+        }
+        .admin-content {
+            display: none;
+            text-align: center;
+        }
+        header {
+            padding: 20px;
+            background-color: #440469;
+            color: white;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        header img {
+            position: absolute;
+            top: 50%;
+            left: 20px;
+            transform: translateY(-50%);
+            width: 40px;
+        }
+        nav {
+            margin: 20px;
+        }
+        .conteneur {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        #menu {
+            list-style-type: none;
+            padding: 0;
+        }
+        #menu li {
+            margin: 10px 0;
+        }
+        #menu li a {
+            text-decoration: none;
+            color: white;
+            padding: 10px;
+            display: block;
+            background-color: #01f3e7;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        #menu li a:hover {
+            background-color: #6c6e92;
+        }
+        .settings-container {
+            display: none;
+            padding: 20px;
+            background-color: #16213e;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            width: 300px;
+            text-align: center;
+        }
+        .settings-container h2 {
+            color: #e0e0e0;
+            margin-bottom: 20px;
+        }
+        .settings-container button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .settings-container button:hover {
+            background-color: #45a049;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #440469;
+            color: white;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-box">
+            <h2>Connexion Administrateur</h2>
+            <input type="text" id="username" placeholder="Nom d'utilisateur" required>
+            <input type="password" id="password" placeholder="Mot de passe" required>
+            <button onclick="authenticate()">Se connecter</button>
+        </div>
+    </div>
+    <div class="admin-content">
+        <header>
+            <h1>😊Bienvenue, Shadow</h1>
+        </header>
+        <nav>
+            <div class="conteneur">
+                <ul id="menu">
+                    <li><a href="gestion_utilisateurs.html" id="gestion_utilisateurs">Gestion des utilisateurs</a></li>
+                    <li><a href="parametres.html" id="parametres">Paramètres</a></li>
+                    <li><a href="rapports.html" id="rapports">Rapports</a></li>
+                    <li><a href="support.html" id="support">Support</a></li>
+                </ul>
+            </div>
+        </nav>
+        <div class="settings-container">
+            <h2>Paramètres</h2>
+            <label for="restrictAccess">Restreindre l'accès</label>
+            <select id="restrictAccess">
+                <option value="none">Aucune restriction</option>
+                <option value="gestion_utilisateurs">Restreindre Gestion des utilisateurs</option>
+                <option value="parametres">Restreindre Paramètres</option>
+                <option value="rapports">Restreindre Rapports</option>
+                <option value="support">Restreindre Support</option>
+            </select>
+            <button onclick="applySettings()">Appliquer</button>
+        </div>
+        <footer>
+            <p>© 2025 SHADOW - Tous droits réservés</p>
+        </footer>
+    </div>
+    <script>
+        function authenticate() {
+            const defaultUsername = 'shadow';
+            const defaultPassword = '130135';
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (username === defaultUsername && password === defaultPassword) {
+                // Stockage de l'utilisateur connecté dans le localStorage
+                const currentUser = { username: username, role: 'Admin' };
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                document.querySelector('.auth-container').style.display = 'none';
+                document.querySelector('.admin-content').style.display = 'block';
+            } else {
+                alert('Nom d\'utilisateur ou mot de passe incorrect.');
+            }
+        }
+
+        // Redirection des liens en fonction des restrictions
+        document.querySelectorAll('#menu li a').forEach(link => {
+            link.addEventListener('click', function(event) {
+                event.preventDefault();
+                if (!isRestricted(this.id)) {
+                    window.location.href = this.href;
+                } else {
+                    alert('Accès restreint.');
+                }
+            });
+        });
+
+        function applySettings() {
+            const restriction = document.getElementById('restrictAccess').value;
+            localStorage.setItem('pageRestriction', restriction);
+            alert('Paramètres appliqués.');
+        }
+
+        function isRestricted(pageId) {
+            const restriction = localStorage.getItem('pageRestriction');
+            return restriction !== 'none' && restriction === pageId;
+        }
+    </script>
+</body>
+</html>
