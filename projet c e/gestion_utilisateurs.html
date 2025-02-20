@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestion des utilisateurs</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #1a1a2e; /* Bleu nuit */
+      color: #ffffff;
+    }
+    header {
+      padding: 20px;
+      background-color: #440469;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .content {
+      padding: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 10px;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    th {
+      background-color: #440469;
+      cursor: pointer;
+    }
+    form {
+      margin-top: 20px;
+    }
+    input[type="text"], input[type="password"], input[type="search"] {
+      padding: 10px;
+      margin: 5px 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    button {
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .action-btn {
+      margin-right: 5px;
+    }
+    a.logout {
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: bold;
+      background-color: #4CAF50;
+      padding: 8px 12px;
+      border-radius: 5px;
+    }
+    a.logout:hover {
+      background-color: #45a049;
+    }
+    .extra-actions {
+      margin-bottom: 20px;
+    }
+    .extra-actions button {
+      margin-right: 10px;
+    }
+  </style>
+  <script>
+    // Vérifier si l'utilisateur est authentifié
+    document.addEventListener('DOMContentLoaded', function() {
+      if (!localStorage.getItem('authenticated') || localStorage.getItem('authenticated') !== 'true') {
+        window.location.href = 'connexion.html'; // Rediriger vers la page de connexion
+      }
+    });
+  </script>
+</head>
+<body>
+  <header>
+    <h1>Gestion des utilisateurs</h1>
+    <a href="#" class="logout" id="logoutBtn">Déconnexion</a>
+  </header>
+  <div class="content">
+    <!-- Champ de recherche -->
+    <input type="search" id="searchInput" placeholder="Rechercher un utilisateur...">
+    
+    <!-- Actions supplémentaires -->
+    <div class="extra-actions">
+      <button id="bulkDeleteBtn">Supprimer sélection</button>
+      <button id="exportCSVBtn">Exporter CSV</button>
+      <button id="resetDataBtn">Réinitialiser données</button>
+    </div>
+    
+    <table>
+      <thead>
+        <tr>
+          <th><input type="checkbox" id="selectAll"></th>
+          <th id="thUsername">Nom d'utilisateur</th>
+          <th>Mot de passe</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="userTableBody">
+        <!-- Les utilisateurs seront ajoutés ici dynamiquement -->
+      </tbody>
+    </table>
+    <form id="userForm">
+      <h2>Ajouter un utilisateur</h2>
+      <input type="text" id="newUsername" placeholder="Nom d'utilisateur" required>
+      <input type="password" id="newPassword" placeholder="Mot de passe" required>
+      <button type="submit">Ajouter</button>
+    </form>
+  </div>
+  <script>
+    let users = JSON.parse(localStorage.getItem('users')) || [];
+    let sortDirection = 'asc';
+
+    // Fonction pour ajouter un utilisateur
+    function addUser(username, password) {
+      users.push({ username, password });
+      localStorage.setItem('users', JSON.stringify(users));
+      renderUsers();
+    }
+
+    // Fonction pour supprimer un utilisateur
+    function deleteUser(index) {
+      users.splice(index, 1);
+      localStorage.setItem('users', JSON.stringify(users));
+      renderUsers();
+    }
+
+    // Fonction pour modifier un utilisateur
+    function editUser(index) {
+      const currentUser = users[index];
+      const newUsername = prompt("Modifier le nom d'utilisateur :", currentUser.username);
+      if(newUsername === null || newUsername.trim() === "") return;
+      const newPassword = prompt("Modifier le mot de passe :", currentUser.password);
+      if(newPassword === null || newPassword.trim() === "") return;
+      users[index] = { username: newUsername.trim(), password: newPassword.trim() };
+      localStorage.setItem('users', JSON.stringify(users));
+      renderUsers();
+    }
+
+    // Fonction pour exporter les utilisateurs au format CSV
+    function exportCSV() {
+      let csvContent = "data:text/csv;charset=utf-8,";
+      csvContent += "Nom d'utilisateur,Mot de passe\n";
+      users.forEach(user => {
+        csvContent += `${user.username},${user.password}\n`;
+      });
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "users.csv");
+      document.body.appendChild(link); // Requis pour Firefox
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // Fonction pour trier les utilisateurs par nom
+    function sortUsers() {
+      users.sort((a, b) => {
+        if (a.username.toLowerCase() < b.username.toLowerCase()) return sortDirection === 'asc' ? -1 : 1;
+        if (a.username.toLowerCase() > b.username.toLowerCase()) return sortDirection === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    // Fonction pour afficher les utilisateurs
+    function renderUsers(filter = "") {
+      sortUsers();
+      const userTableBody = document.getElementById('userTableBody');
+      userTableBody.innerHTML = '';
+      users.forEach((user, index) => {
+        // Filtrer si une recherche est active
+        if(filter && !user.username.toLowerCase().includes(filter.toLowerCase())) return;
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td><input type="checkbox" class="selectUser" data-username="${user.username}"></td>
+          <td>${user.username}</td>
+          <td>${user.password}</td>
+          <td>
+              <button class="action-btn" onclick="editUser(${index})">Modifier</button>
+              <button class="action-btn" onclick="deleteUser(${index})">Supprimer</button>
+          </td>
+        `;
+        userTableBody.appendChild(row);
+      });
+    }
+
+    // Écouteur d'événement pour le formulaire d'ajout
+    document.getElementById('userForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      const username = document.getElementById('newUsername').value;
+      const password = document.getElementById('newPassword').value;
+      addUser(username, password);
+      this.reset();
+    });
+
+    // Écouteur pour le champ de recherche
+    document.getElementById('searchInput').addEventListener('input', function() {
+      renderUsers(this.value);
+    });
+
+    // Bouton de déconnexion
+    document.getElementById('logoutBtn').addEventListener('click', function(e) {
+      e.preventDefault();
+      localStorage.removeItem('authenticated');
+      window.location.href = 'connexion.html';
+    });
+
+    // Sélectionner/Déselectionner tous les utilisateurs
+    document.getElementById('selectAll').addEventListener('change', function() {
+      const checked = this.checked;
+      document.querySelectorAll('.selectUser').forEach(cb => {
+        cb.checked = checked;
+      });
+    });
+
+    // Suppression groupée
+    document.getElementById('bulkDeleteBtn').addEventListener('click', function() {
+      const selectedUsernames = Array.from(document.querySelectorAll('.selectUser'))
+                                  .filter(cb => cb.checked)
+                                  .map(cb => cb.getAttribute('data-username'));
+      if(selectedUsernames.length === 0) {
+        alert("Aucun utilisateur sélectionné.");
+        return;
+      }
+      if(confirm(`Supprimer ${selectedUsernames.length} utilisateur(s) ?`)) {
+        users = users.filter(user => !selectedUsernames.includes(user.username));
+        localStorage.setItem('users', JSON.stringify(users));
+        renderUsers();
+      }
+    });
+
+    // Export CSV
+    document.getElementById('exportCSVBtn').addEventListener('click', exportCSV);
+
+    // Réinitialisation de toutes les données
+    document.getElementById('resetDataBtn').addEventListener('click', function() {
+      if(confirm("Voulez-vous vraiment réinitialiser toutes les données utilisateurs ?")) {
+        users = [];
+        localStorage.setItem('users', JSON.stringify(users));
+        renderUsers();
+      }
+    });
+
+    // Tri par clic sur l'en-tête "Nom d'utilisateur"
+    document.getElementById('thUsername').addEventListener('click', function() {
+      sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+      renderUsers(document.getElementById('searchInput').value);
+    });
+
+    // Afficher les utilisateurs au chargement de la page
+    renderUsers();
+  </script>
+</body>
+</html>

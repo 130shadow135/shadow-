@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Site en Maintenance</title>
+  <style>
+    /* Style général */
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+    }
+    
+    /* Conteneur principal */
+    .container {
+      max-width: 600px;
+      padding: 30px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Icone et animations */
+    .icon {
+      font-size: 4em;
+      margin-bottom: 20px;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    
+    /* Titres et paragraphes */
+    h1 {
+      font-size: 3em;
+      margin-bottom: 0.5em;
+      animation: fadeInDown 1s ease;
+    }
+    
+    p {
+      font-size: 1.2em;
+      margin-bottom: 1.5em;
+      animation: fadeInUp 1s ease;
+    }
+    
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-50px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(50px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Lien de contact */
+    .contact {
+      font-size: 0.9em;
+      margin-top: 20px;
+    }
+    
+    .contact a {
+      color: #ffd700;
+      text-decoration: none;
+    }
+    
+    .contact a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">🔧</div>
+    <h1>Site en Maintenance</h1>
+    <p>Nous effectuons actuellement des travaux pour améliorer votre expérience.<br>
+       Merci de revenir plus tard.</p>
+    <div class="contact">
+      Pour toute question, contactez-nous : <a href="130shadow135@gmail.com">support@exemple.com</a>
+    </div>
+  </div>
+</body>
+</html>

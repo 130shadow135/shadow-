@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parcours Dynamique - Cours & Épreuves</title>
+  <style>
+    /* Style global inspiré du thème bleu nuit et gris clair */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #1a1a2e; /* Bleu nuit */
+      color: #e0e0e0; /* Gris clair */
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      animation: fadeIn 2s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .container {
+      background-color: #16213e;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      width: 300px;
+      text-align: center;
+      transition: transform 0.3s ease-in-out;
+    }
+    .container:hover {
+      transform: scale(1.05);
+    }
+    h2 {
+      margin-bottom: 20px;
+    }
+    hr {
+      border: 0;
+      height: 1px;
+      background: #444;
+      margin-bottom: 20px;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      margin: 10px 0;
+    }
+    li a {
+      text-decoration: none;
+      color: #4CAF50;
+      font-weight: bold;
+      display: block;
+      padding: 10px;
+      border: 1px solid #4CAF50;
+      border-radius: 5px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    li a:hover {
+      background-color: #4CAF50;
+      color: #1a1a2e;
+    }
+    .hidden {
+      display: none;
+    }
+    a.back {
+      color: #4CAF50;
+      display: block;
+      margin-top: 20px;
+      text-decoration: none;
+    }
+    a.back:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Section de choix de la filière -->
+    <div id="sectionFiliere">
+      <h2>Choisissez votre filière</h2>
+      <hr/>
+      <ul>
+        <li><a href="#" data-filiere="genie_electrique">Génie Électrique</a></li>
+        <li><a href="#" data-filiere="genie_civil">Génie Civil</a></li>
+        <li><a href="#" data-filiere="mecanique">Mécanique</a></li>
+        <li><a href="#" data-filiere="informatique">Informatique</a></li>
+      </ul>
+    </div>
+    
+    <!-- Section de choix de l'année -->
+    <div id="sectionAnnee" class="hidden">
+      <h2>Choisissez votre année d'étude</h2>
+      <h3 id="filiereChoisie"></h3>
+      <hr/>
+      <ul>
+        <li><a href="#" data-annee="1">Première Année</a></li>
+        <li><a href="#" data-annee="2">Deuxième Année</a></li>
+        <li><a href="#" data-annee="3">Troisième Année</a></li>
+      </ul>
+      <a href="#" id="backToFiliere" class="back">Retour</a>
+    </div>
+    
+    <!-- Section de choix du semestre -->
+    <div id="sectionSemestre" class="hidden">
+      <h2>Accédez aux cours et épreuves</h2>
+      <h3 id="resumeFiliere"></h3>
+      <h4 id="resumeAnnee"></h4>
+      <hr/>
+      <ul id="listSemestres">
+        <!-- Les semestres seront générés dynamiquement -->
+      </ul>
+      <a href="#" id="backToAnnee" class="back">Retour</a>
+    </div>
+  </div>
+  <script>
+    document.addEventListener("DOMContentLoaded", function(){
+      if (localStorage.getItem('maintenance') === 'true') {
+        window.location.href = "maintenance.html";
+      }
+    });
+  </script>
+  
+  
+  <script>
+    // Variables globales pour mémoriser les sélections
+    let selectedFiliere = '';
+    let selectedAnnee = '';
+    
+    // Fonction pour mettre en forme le nom de la filière
+    function formatFiliere(filiere) {
+      return filiere.split('_')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+    }
+    
+    // Fonction pour afficher une section et masquer les autres
+    function showSection(sectionId) {
+      document.getElementById('sectionFiliere').classList.add('hidden');
+      document.getElementById('sectionAnnee').classList.add('hidden');
+      document.getElementById('sectionSemestre').classList.add('hidden');
+      document.getElementById(sectionId).classList.remove('hidden');
+    }
+    
+    // Gestion du clic sur une filière
+    document.querySelectorAll('#sectionFiliere a').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        selectedFiliere = this.getAttribute('data-filiere');
+        document.getElementById('filiereChoisie').textContent = 'Filière sélectionnée : ' + formatFiliere(selectedFiliere);
+        showSection('sectionAnnee');
+      });
+    });
+    
+    // Gestion du clic sur une année
+    document.querySelectorAll('#sectionAnnee a[data-annee]').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        selectedAnnee = this.getAttribute('data-annee');
+        let anneeTexte = '';
+        if (selectedAnnee === '1') {
+          anneeTexte = 'Première Année';
+        } else if (selectedAnnee === '2') {
+          anneeTexte = 'Deuxième Année';
+        } else if (selectedAnnee === '3') {
+          anneeTexte = 'Troisième Année';
+        }
+        document.getElementById('resumeFiliere').textContent = 'Filière : ' + formatFiliere(selectedFiliere);
+        document.getElementById('resumeAnnee').textContent = 'Année d\'étude : ' + anneeTexte;
+        
+        // Génération de la liste des semestres en fonction de l'année choisie
+        let semestresHtml = '';
+        if (selectedAnnee === '1') {
+          semestresHtml += '<li><a href="cours_epreuves.html?filiere=' + selectedFiliere + '&annee=1&semestre=1">Semestre 1</a></li>';
+          semestresHtml += '<li><a href="cours_epreuves.html?filiere=' + selectedFiliere + '&annee=1&semestre=2">Semestre 2</a></li>';
+        } else if (selectedAnnee === '2') {
+          semestresHtml += '<li><a href="cours_epreuves.html?filiere=' + selectedFiliere + '&annee=2&semestre=3">Semestre 3</a></li>';
+          semestresHtml += '<li><a href="cours_epreuves.html?filiere=' + selectedFiliere + '&annee=2&semestre=4">Semestre 4</a></li>';
+        } else if (selectedAnnee === '3') {
+          semestresHtml += '<li><a href="cours_epreuves.html?filiere=' + selectedFiliere + '&annee=3&semestre=5">Semestre 5</a></li>';
+          semestresHtml += '<li><a href="cours_epreuves.html?filiere=' + selectedFiliere + '&annee=3&semestre=6">Semestre 6</a></li>';
+        }
+        document.getElementById('listSemestres').innerHTML = semestresHtml;
+        showSection('sectionSemestre');
+      });
+    });
+    
+    // Boutons "Retour" pour naviguer en arrière
+    document.getElementById('backToFiliere').addEventListener('click', function(e) {
+      e.preventDefault();
+      showSection('sectionFiliere');
+    });
+    document.getElementById('backToAnnee').addEventListener('click', function(e) {
+      e.preventDefault();
+      showSection('sectionAnnee');
+    });
+  </script>
+</body>
+</html>
