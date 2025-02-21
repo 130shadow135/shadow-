@@ -1,225 +1,267 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page d'Administration</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #1a1a2e;
-            color: #ffffff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .auth-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .auth-box {
-            background-color: #16213e;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            width: 300px;
-            text-align: center;
-        }
-        .auth-box h2 {
-            color: #e0e0e0;
-            margin-bottom: 20px;
-        }
-        .auth-box input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            border: none;
-            border-radius: 5px;
-        }
-        .auth-box button {
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .auth-box button:hover {
-            background-color: #45a049;
-        }
-        .admin-content {
-            display: none;
-            text-align: center;
-        }
-        header {
-            padding: 20px;
-            background-color: #440469;
-            color: white;
-            margin-bottom: 20px;
-            position: relative;
-        }
-        header img {
-            position: absolute;
-            top: 50%;
-            left: 20px;
-            transform: translateY(-50%);
-            width: 40px;
-        }
-        nav {
-            margin: 20px;
-        }
-        .conteneur {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        #menu {
-            list-style-type: none;
-            padding: 0;
-        }
-        #menu li {
-            margin: 10px 0;
-        }
-        #menu li a {
-            text-decoration: none;
-            color: white;
-            padding: 10px;
-            display: block;
-            background-color: #01f3e7;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        #menu li a:hover {
-            background-color: #6c6e92;
-        }
-        .settings-container {
-            display: none;
-            padding: 20px;
-            background-color: #16213e;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            width: 300px;
-            text-align: center;
-        }
-        .settings-container h2 {
-            color: #e0e0e0;
-            margin-bottom: 20px;
-        }
-        .settings-container button {
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        .settings-container button:hover {
-            background-color: #45a049;
-        }
-        footer {
-            text-align: center;
-            padding: 10px;
-            background-color: #440469;
-            color: white;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestion des utilisateurs</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #1a1a2e; /* Bleu nuit */
+      color: #ffffff;
+    }
+    header {
+      padding: 20px;
+      background-color: #440469;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    #currentUserDisplay {
+      font-size: 0.9em;
+      margin-top: 10px;
+    }
+    .content {
+      padding: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 10px;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    th {
+      background-color: #440469;
+      cursor: pointer;
+    }
+    form {
+      margin-top: 20px;
+    }
+    input[type="text"], input[type="password"], input[type="search"] {
+      padding: 10px;
+      margin: 5px 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    button {
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .action-btn {
+      margin-right: 5px;
+    }
+    a.logout {
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: bold;
+      background-color: #4CAF50;
+      padding: 8px 12px;
+      border-radius: 5px;
+    }
+    a.logout:hover {
+      background-color: #45a049;
+    }
+    .extra-actions {
+      margin-bottom: 20px;
+    }
+    .extra-actions button {
+      margin-right: 10px;
+    }
+  </style>
 </head>
 <body>
-    <div class="auth-container">
-        <div class="auth-box">
-            <h2>Connexion Administrateur</h2>
-            <input type="text" id="username" placeholder="Nom d'utilisateur" required>
-            <input type="password" id="password" placeholder="Mot de passe" required>
-            <button onclick="authenticate()">Se connecter</button>
-        </div>
+  <header>
+    <div>
+      <h1>Gestion des utilisateurs</h1>
+      <!-- Bloc affichant les informations d'authentification -->
+      <div id="currentUserDisplay"></div>
     </div>
-    <div class="admin-content">
-        <header>
-            <h1>😊Bienvenue, Shadow</h1>
-            <!-- Affichage de l'heure de connexion -->
-            <p id="loginTimeDisplay"></p>
-        </header>
-        <nav>
-            <div class="conteneur">
-                <ul id="menu">
-                    <li><a href="gestion_utilisateurs.html" id="gestion_utilisateurs">Gestion des utilisateurs</a></li>
-                    <li><a href="parametres.html" id="parametres">Paramètres</a></li>
-                    <li><a href="rapports.html" id="rapports">Rapports</a></li>
-                    <li><a href="support.html" id="support">Support</a></li>
-                </ul>
-            </div>
-        </nav>
-        <div class="settings-container">
-            <h2>Paramètres</h2>
-            <label for="restrictAccess">Restreindre l'accès</label>
-            <select id="restrictAccess">
-                <option value="none">Aucune restriction</option>
-                <option value="gestion_utilisateurs">Restreindre Gestion des utilisateurs</option>
-                <option value="parametres">Restreindre Paramètres</option>
-                <option value="rapports">Restreindre Rapports</option>
-                <option value="support">Restreindre Support</option>
-            </select>
-            <button onclick="applySettings()">Appliquer</button>
-        </div>
-        <footer>
-            <p>© 2025 SHADOW - Tous droits réservés</p>
-        </footer>
+    <a href="#" class="logout" id="logoutBtn">Déconnexion</a>
+  </header>
+  <div class="content">
+    <!-- Champ de recherche -->
+    <input type="search" id="searchInput" placeholder="Rechercher un utilisateur...">
+    
+    <!-- Actions supplémentaires -->
+    <div class="extra-actions">
+      <button id="bulkDeleteBtn">Supprimer sélection</button>
+      <button id="exportCSVBtn">Exporter CSV</button>
+      <button id="resetDataBtn">Réinitialiser données</button>
     </div>
-    <script>
-        function authenticate() {
-            const defaultUsername = 'shadow';
-            const defaultPassword = '130135';
+    <table>
+      <thead>
+        <tr>
+          <th><input type="checkbox" id="selectAll"></th>
+          <th id="thUsername">Nom d'utilisateur</th>
+          <th>Mot de passe</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="userTableBody">
+        <!-- Les utilisateurs seront ajoutés ici dynamiquement -->
+      </tbody>
+    </table>
+    <form id="userForm">
+      <h2>Ajouter un utilisateur</h2>
+      <input type="text" id="newUsername" placeholder="Nom d'utilisateur" required>
+      <input type="password" id="newPassword" placeholder="Mot de passe" required>
+      <button type="submit">Ajouter</button>
+    </form>
+  </div>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      // Récupère l'objet stocké sous la clé "authCode"
+      const authCodeData = JSON.parse(localStorage.getItem('authCode'));
+      if (authCodeData && authCodeData.authenticated) {
+        document.getElementById('currentUserDisplay').innerHTML =
+          "Connecté en tant que <strong>" + authCodeData.username + "</strong><br>" +
+          "Code d'authentification : <strong>" + authCodeData.authCode + "</strong><br>" +
+          "Heure de connexion : <strong>" + authCodeData.loginTime + "</strong>";
+      } else {
+        window.location.href = 'administrateur.html';
+        return;
+      }
 
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+      let users = JSON.parse(localStorage.getItem('users')) || [];
+      let sortDirection = 'asc';
 
-            if (username === defaultUsername && password === defaultPassword) {
-                // Stockage de l'utilisateur connecté dans le localStorage avec l'heure de connexion
-                const currentUser = { username: username, role: 'Admin', loginTime: new Date().toLocaleString() };
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                
-                document.querySelector('.auth-container').style.display = 'none';
-                document.querySelector('.admin-content').style.display = 'block';
-                
-                // Affiche l'heure de connexion sur la page de gestion
-                document.getElementById('loginTimeDisplay').textContent = "Heure de connexion : " + currentUser.loginTime;
-            } else {
-                alert('Nom d\'utilisateur ou mot de passe incorrect.');
-            }
-        }
+      function addUser(username, password) {
+        users.push({ username, password });
+        localStorage.setItem('users', JSON.stringify(users));
+        renderUsers();
+      }
 
-        // Redirection des liens en fonction des restrictions
-        document.querySelectorAll('#menu li a').forEach(link => {
-            link.addEventListener('click', function(event) {
-                event.preventDefault();
-                if (!isRestricted(this.id)) {
-                    window.location.href = this.href;
-                } else {
-                    alert('Accès restreint.');
-                }
-            });
+      function deleteUser(index) {
+        users.splice(index, 1);
+        localStorage.setItem('users', JSON.stringify(users));
+        renderUsers();
+      }
+
+      function editUser(index) {
+        const currentUser = users[index];
+        const newUsername = prompt("Modifier le nom d'utilisateur :", currentUser.username);
+        if(newUsername === null || newUsername.trim() === "") return;
+        const newPassword = prompt("Modifier le mot de passe :", currentUser.password);
+        if(newPassword === null || newPassword.trim() === "") return;
+        users[index] = { username: newUsername.trim(), password: newPassword.trim() };
+        localStorage.setItem('users', JSON.stringify(users));
+        renderUsers();
+      }
+
+      function exportCSV() {
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "Nom d'utilisateur,Mot de passe\n";
+        users.forEach(user => {
+          csvContent += `${user.username},${user.password}\n`;
         });
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "users.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
 
-        function applySettings() {
-            const restriction = document.getElementById('restrictAccess').value;
-            localStorage.setItem('pageRestriction', restriction);
-            alert('Paramètres appliqués.');
-        }
+      function sortUsers() {
+        users.sort((a, b) => {
+          if (a.username.toLowerCase() < b.username.toLowerCase()) return sortDirection === 'asc' ? -1 : 1;
+          if (a.username.toLowerCase() > b.username.toLowerCase()) return sortDirection === 'asc' ? 1 : -1;
+          return 0;
+        });
+      }
 
-        function isRestricted(pageId) {
-            const restriction = localStorage.getItem('pageRestriction');
-            return restriction !== 'none' && restriction === pageId;
+      function renderUsers(filter = "") {
+        sortUsers();
+        const userTableBody = document.getElementById('userTableBody');
+        userTableBody.innerHTML = '';
+        users.forEach((user, index) => {
+          if(filter && !user.username.toLowerCase().includes(filter.toLowerCase())) return;
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td><input type="checkbox" class="selectUser" data-username="${user.username}"></td>
+            <td>${user.username}</td>
+            <td>${user.password}</td>
+            <td>
+                <button class="action-btn" onclick="editUser(${index})">Modifier</button>
+                <button class="action-btn" onclick="deleteUser(${index})">Supprimer</button>
+            </td>
+          `;
+          userTableBody.appendChild(row);
+        });
+      }
+
+      document.getElementById('userForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const username = document.getElementById('newUsername').value;
+        const password = document.getElementById('newPassword').value;
+        addUser(username, password);
+        this.reset();
+      });
+
+      document.getElementById('searchInput').addEventListener('input', function() {
+        renderUsers(this.value);
+      });
+
+      document.getElementById('logoutBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        localStorage.removeItem('authCode');
+        window.location.href = 'administrateur.html';
+      });
+
+      document.getElementById('selectAll').addEventListener('change', function() {
+        const checked = this.checked;
+        document.querySelectorAll('.selectUser').forEach(cb => {
+          cb.checked = checked;
+        });
+      });
+
+      document.getElementById('bulkDeleteBtn').addEventListener('click', function() {
+        const selectedUsernames = Array.from(document.querySelectorAll('.selectUser'))
+                                    .filter(cb => cb.checked)
+                                    .map(cb => cb.getAttribute('data-username'));
+        if(selectedUsernames.length === 0) {
+          alert("Aucun utilisateur sélectionné.");
+          return;
         }
-    </script>
+        if(confirm(`Supprimer ${selectedUsernames.length} utilisateur(s) ?`)) {
+          users = users.filter(user => !selectedUsernames.includes(user.username));
+          localStorage.setItem('users', JSON.stringify(users));
+          renderUsers();
+        }
+      });
+
+      document.getElementById('exportCSVBtn').addEventListener('click', exportCSV);
+
+      document.getElementById('resetDataBtn').addEventListener('click', function() {
+        if(confirm("Voulez-vous vraiment réinitialiser toutes les données utilisateurs ?")) {
+          users = [];
+          localStorage.setItem('users', JSON.stringify(users));
+          renderUsers();
+        }
+      });
+
+      document.getElementById('thUsername').addEventListener('click', function() {
+        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+        renderUsers(document.getElementById('searchInput').value);
+      });
+
+      renderUsers();
+    });
+  </script>
 </body>
 </html>
