@@ -9,7 +9,7 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #1a1a2e;
+            background-color: #1a1a2e; /* Bleu nuit */
             color: #ffffff;
             display: flex;
             justify-content: center;
@@ -23,7 +23,7 @@
             height: 100vh;
         }
         .auth-box {
-            background-color: #16213e;
+            background-color: #16213e; /* Couleur sombre */
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
@@ -31,7 +31,7 @@
             text-align: center;
         }
         .auth-box h2 {
-            color: #e0e0e0;
+            color: #e0e0e0; /* Gris clair */
             margin-bottom: 20px;
         }
         .auth-box input {
@@ -152,8 +152,8 @@
                 <ul id="menu">
                     <li><a href="gestion_utilisateurs.html" id="gestion_utilisateurs">Gestion des utilisateurs</a></li>
                     <li><a href="parametres.html" id="parametres">Paramètres</a></li>
-                    <li><a href="rapports.html" id="rapports">Rapports</a></li>
-                    <li><a href="support.html" id="support">Support</a></li>
+                    <li><a href="rapports.html" id="rapports">supports</a></li>
+                    <li><a href="support.html" id="support">maintenance</a></li>
                 </ul>
             </div>
         </nav>
@@ -170,22 +170,28 @@
             <button onclick="applySettings()">Appliquer</button>
         </div>
         <footer>
-            <p>© 2025 SHADOW .Cette page n'est pas ouvert au public et est exclusivement réservé au personnel et menbre de shadow garden. Toute personne non autorisé sera banni de toute les autres pages, veuillez gardé à l'esprit qu'aucune excuse et réclamation ne sera accepté. Tous droits réservés- Tous droits réservés</p>
+            <p>© 2025 SHADOW. Cette page n'est pas ouverte au public et est exclusivement réservée au personnel et aux membres de Shadow Garden. Toute personne non autorisée sera bannie de toutes les autres pages. Aucune excuse ou réclamation ne sera acceptée. Tous droits réservés.</p>
         </footer>
     </div>
     <script>
+        // Si l'utilisateur est déjà authentifié, affiche directement le contenu administrateur
+        window.addEventListener("DOMContentLoaded", function() {
+            const currentUser = localStorage.getItem("currentUser");
+            if (currentUser) {
+                document.querySelector('.auth-container').style.display = 'none';
+                document.querySelector('.admin-content').style.display = 'block';
+            }
+        });
+
         function authenticate() {
             const defaultUsername = 'shadow';
             const defaultPassword = '130135';
-
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-
             if (username === defaultUsername && password === defaultPassword) {
-                // Stockage de l'utilisateur connecté dans le localStorage
+                // Stocke l'utilisateur authentifié dans le localStorage
                 const currentUser = { username: username, role: 'Admin' };
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                
                 document.querySelector('.auth-container').style.display = 'none';
                 document.querySelector('.admin-content').style.display = 'block';
             } else {
@@ -193,7 +199,7 @@
             }
         }
 
-        // Redirection des liens en fonction des restrictions
+        // Gestion des liens selon la restriction (fonction inchangée)
         document.querySelectorAll('#menu li a').forEach(link => {
             link.addEventListener('click', function(event) {
                 event.preventDefault();
