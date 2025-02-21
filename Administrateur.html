@@ -1,226 +1,148 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page d'Administration</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #1a1a2e; /* Bleu nuit */
-            color: #ffffff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .auth-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .auth-box {
-            background-color: #16213e; /* Couleur sombre */
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            width: 300px;
-            text-align: center;
-        }
-        .auth-box h2 {
-            color: #e0e0e0; /* Gris clair */
-            margin-bottom: 20px;
-        }
-        .auth-box input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            border: none;
-            border-radius: 5px;
-        }
-        .auth-box button {
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .auth-box button:hover {
-            background-color: #45a049;
-        }
-        .admin-content {
-            display: none;
-            text-align: center;
-        }
-        header {
-            padding: 20px;
-            background-color: #440469;
-            color: white;
-            margin-bottom: 20px;
-            position: relative;
-        }
-        header img {
-            position: absolute;
-            top: 50%;
-            left: 20px;
-            transform: translateY(-50%);
-            width: 40px;
-        }
-        nav {
-            margin: 20px;
-        }
-        .conteneur {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        #menu {
-            list-style-type: none;
-            padding: 0;
-        }
-        #menu li {
-            margin: 10px 0;
-        }
-        #menu li a {
-            text-decoration: none;
-            color: white;
-            padding: 10px;
-            display: block;
-            background-color: #01f3e7;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        #menu li a:hover {
-            background-color: #6c6e92;
-        }
-        .settings-container {
-            display: none;
-            padding: 20px;
-            background-color: #16213e;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            width: 300px;
-            text-align: center;
-        }
-        .settings-container h2 {
-            color: #e0e0e0;
-            margin-bottom: 20px;
-        }
-        .settings-container button {
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        .settings-container button:hover {
-            background-color: #45a049;
-        }
-        footer {
-            text-align: center;
-            padding: 10px;
-            background-color: #440469;
-            color: white;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administrateur</title>
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      background-color: #1a1a2e; 
+      color: #fff; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      height: 100vh; 
+    }
+    .login-container { 
+      padding: 20px; 
+      background-color: #16213e; 
+      border-radius: 10px; 
+      box-shadow: 0 0 10px rgba(0,0,0,0.5); 
+    }
+    input { 
+      padding: 10px; 
+      margin: 5px 0; 
+      width: 100%; 
+      box-sizing: border-box; 
+    }
+    button { 
+      padding: 10px; 
+      background-color: #4CAF50; 
+      border: none; 
+      color: white; 
+      cursor: pointer; 
+      width: 100%; 
+      margin-top: 10px; 
+    }
+  </style>
 </head>
 <body>
-    <div class="auth-container">
-        <div class="auth-box">
-            <h2>Connexion Administrateur</h2>
-            <input type="text" id="username" placeholder="Nom d'utilisateur" required>
-            <input type="password" id="password" placeholder="Mot de passe" required>
-            <button onclick="authenticate()">Se connecter</button>
-        </div>
+  <script>
+    // Forcer la demande de connexion en supprimant toute session précédente
+    localStorage.removeItem('authCode');
+    // Vérification du mode maintenance
+    document.addEventListener("DOMContentLoaded", function(){
+      if (localStorage.getItem('maintenance') === 'true') {
+        window.location.href = "maintenance.html";
+      }
+    });
+  </script>
+
+  <div class="login-container">
+    <h2>Connexion</h2>
+    <input type="text" id="username" placeholder="Nom d'utilisateur" required>
+    <input type="password" id="password" placeholder="Mot de passe" required>
+    <!-- Champ email pour recevoir le code -->
+    <input type="email" id="email" placeholder="Votre email" required>
+    <button id="login-btn" onclick="authenticate()">Se connecter</button>
+    <!-- Section pour saisir le code envoyé par email (pour les utilisateurs non-admin) -->
+    <div id="auth-section" style="display:none; margin-top:10px;">
+      <input type="text" id="code" placeholder="Saisir le code reçu">
+      <button onclick="verifyCode()">Vérifier le code</button>
     </div>
-    <div class="admin-content">
-        <header>
-            <h1>😊Bienvenue, Shadow</h1>
-        </header>
-        <nav>
-            <div class="conteneur">
-                <ul id="menu">
-                    <li><a href="gestion_utilisateurs.html" id="gestion_utilisateurs">Gestion des utilisateurs</a></li>
-                    <li><a href="parametres.html" id="parametres">Paramètres</a></li>
-                    <li><a href="rapports.html" id="rapports">Rapports</a></li>
-                    <li><a href="support.html" id="support">Support</a></li>
-                </ul>
-            </div>
-        </nav>
-        <div class="settings-container">
-            <h2>Paramètres</h2>
-            <label for="restrictAccess">Restreindre l'accès</label>
-            <select id="restrictAccess">
-                <option value="none">Aucune restriction</option>
-                <option value="gestion_utilisateurs">Restreindre Gestion des utilisateurs</option>
-                <option value="parametres">Restreindre Paramètres</option>
-                <option value="rapports">Restreindre Rapports</option>
-                <option value="support">Restreindre Support</option>
-            </select>
-            <button onclick="applySettings()">Appliquer</button>
-        </div>
-        <footer>
-            <p>© 2025 SHADOW. Cette page n'est pas ouverte au public et est exclusivement réservée au personnel et aux membres de Shadow Garden. Toute personne non autorisée sera bannie de toutes les autres pages. Aucune excuse ou réclamation ne sera acceptée. Tous droits réservés.</p>
-        </footer>
-    </div>
-    <script>
-        // Si l'utilisateur est déjà authentifié, affiche directement le contenu administrateur
-        window.addEventListener("DOMContentLoaded", function() {
-            const currentUser = localStorage.getItem("currentUser");
-            if (currentUser) {
-                document.querySelector('.auth-container').style.display = 'none';
-                document.querySelector('.admin-content').style.display = 'block';
-            }
+  </div>
+
+  <!-- Intégration d'EmailJS -->
+  <script type="text/javascript" src="https://cdn.emailjs.com/dist/email.min.js"></script>
+  <script type="text/javascript">
+    emailjs.init("mxOs-74EXnyBnvarW"); // Remplacez par votre ID utilisateur EmailJS
+
+    // Génère un code à 6 chiffres
+    function generateAuthCode() {
+      return Math.floor(100000 + Math.random() * 900000).toString();
+    }
+
+    function authenticate() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const email = document.getElementById('email').value.trim();
+
+      let users = JSON.parse(localStorage.getItem('users')) || [];
+      let user = users.find(user => user.username === username && user.password === password);
+
+      if (user) {
+        const loginTime = new Date().toLocaleString();
+        // Pour l'utilisateur admin, bypass la vérification par code
+        if(user.username.toLowerCase() === "admin") {
+          const authCodeData = {
+            username: user.username,
+            authCode: generateAuthCode(), // Le code est généré mais ignoré pour admin
+            loginTime: loginTime,
+            authenticated: true
+          };
+          localStorage.setItem('authCode', JSON.stringify(authCodeData));
+          window.location.href = 'menu.html';
+        } else {
+          let authCode = generateAuthCode();
+          const authCodeData = {
+            username: user.username,
+            authCode: authCode,
+            loginTime: loginTime,
+            authenticated: false
+          };
+          localStorage.setItem('authCode', JSON.stringify(authCodeData));
+
+          // Envoi de l'email avec le code d'authentification
+          sendAuthCodeByEmail(email, authCode);
+
+          alert("Votre code d'authentification a été envoyé à votre adresse e-mail.");
+          document.getElementById('auth-section').style.display = 'block';
+          document.getElementById('login-btn').style.display = 'none';
+        }
+      } else {
+        alert("Identifiants incorrects.");
+      }
+    }
+
+    function sendAuthCodeByEmail(email, authCode) {
+      const templateParams = {
+        to_email: email,
+        subject: "Votre code d'authentification",
+        message: `Votre code d'authentification à 6 chiffres est : ${authCode}`
+      };
+
+      emailjs.send("service_8hfztp8", "template_16jc455", templateParams)
+        .then((response) => {
+          console.log("Code envoyé avec succès", response);
+        }, (error) => {
+          console.error("Erreur lors de l'envoi du code", error);
         });
+    }
 
-        function authenticate() {
-            const defaultUsername = 'shadow';
-            const defaultPassword = '130135';
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            if (username === defaultUsername && password === defaultPassword) {
-                // Stocke l'utilisateur authentifié dans le localStorage
-                const currentUser = { username: username, role: 'Admin' };
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                document.querySelector('.auth-container').style.display = 'none';
-                document.querySelector('.admin-content').style.display = 'block';
-            } else {
-                alert('Nom d\'utilisateur ou mot de passe incorrect.');
-            }
-        }
+    function verifyCode() {
+      const inputCode = document.getElementById('code').value.trim();
+      const authCodeData = JSON.parse(localStorage.getItem('authCode'));
 
-        // Gestion des liens selon la restriction (fonction inchangée)
-        document.querySelectorAll('#menu li a').forEach(link => {
-            link.addEventListener('click', function(event) {
-                event.preventDefault();
-                if (!isRestricted(this.id)) {
-                    window.location.href = this.href;
-                } else {
-                    alert('Accès restreint.');
-                }
-            });
-        });
-
-        function applySettings() {
-            const restriction = document.getElementById('restrictAccess').value;
-            localStorage.setItem('pageRestriction', restriction);
-            alert('Paramètres appliqués.');
-        }
-
-        function isRestricted(pageId) {
-            const restriction = localStorage.getItem('pageRestriction');
-            return restriction !== 'none' && restriction === pageId;
-        }
-    </script>
+      if (authCodeData && inputCode === authCodeData.authCode) {
+        alert("Connexion réussie !");
+        authCodeData.authenticated = true;
+        localStorage.setItem('authCode', JSON.stringify(authCodeData));
+        window.location.href = 'menu.html';
+      } else {
+        alert("Code incorrect. Veuillez réessayer.");
+      }
+    }
+  </script>
 </body>
 </html>
