@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Administrateur</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page d'Administration</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #1a1a2e; /* Bleu nuit */
+            background-color: #1a1a2e;
             color: #ffffff;
             display: flex;
             justify-content: center;
@@ -23,7 +23,7 @@
             height: 100vh;
         }
         .auth-box {
-            background-color: #16213e; /* Couleur sombre */
+            background-color: #16213e;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
@@ -31,7 +31,7 @@
             text-align: center;
         }
         .auth-box h2 {
-            color: #e0e0e0; /* Gris clair */
+            color: #e0e0e0;
             margin-bottom: 20px;
         }
         .auth-box input {
@@ -135,111 +135,91 @@
     </style>
 </head>
 <body>
-  <script>
-    // Forcer la demande de connexion en supprimant toute session précédente
-    localStorage.removeItem('authCode');
-    // Vérification du mode maintenance
-    document.addEventListener("DOMContentLoaded", function(){
-      if (localStorage.getItem('maintenance') === 'true') {
-        window.location.href = "maintenance.html";
-      }
-    });
-  </script>
-
-  <div class="login-container">
-    <h2>Connexion</h2>
-    <input type="text" id="username" placeholder="Nom d'utilisateur" required>
-    <input type="password" id="password" placeholder="Mot de passe" required>
-    <!-- Champ email pour recevoir le code -->
-    <input type="email" id="email" placeholder="Votre email" required>
-    <button id="login-btn" onclick="authenticate()">Se connecter</button>
-    <!-- Section pour saisir le code envoyé par email (pour les utilisateurs non-admin) -->
-    <div id="auth-section" style="display:none; margin-top:10px;">
-      <input type="text" id="code" placeholder="Saisir le code reçu">
-      <button onclick="verifyCode()">Vérifier le code</button>
+    <div class="auth-container">
+        <div class="auth-box">
+            <h2>Connexion Administrateur</h2>
+            <input type="text" id="username" placeholder="Nom d'utilisateur" required>
+            <input type="password" id="password" placeholder="Mot de passe" required>
+            <button onclick="authenticate()">Se connecter</button>
+        </div>
     </div>
-  </div>
+    <div class="admin-content">
+        <header>
+            <h1>😊Bienvenue, Shadow</h1>
+            <!-- Affichage de l'heure de connexion -->
+            <p id="loginTimeDisplay"></p>
+        </header>
+        <nav>
+            <div class="conteneur">
+                <ul id="menu">
+                    <li><a href="gestion_utilisateurs.html" id="gestion_utilisateurs">Gestion des utilisateurs</a></li>
+                    <li><a href="parametres.html" id="parametres">Paramètres</a></li>
+                    <li><a href="rapports.html" id="rapports">Rapports</a></li>
+                    <li><a href="support.html" id="support">Support</a></li>
+                </ul>
+            </div>
+        </nav>
+        <div class="settings-container">
+            <h2>Paramètres</h2>
+            <label for="restrictAccess">Restreindre l'accès</label>
+            <select id="restrictAccess">
+                <option value="none">Aucune restriction</option>
+                <option value="gestion_utilisateurs">Restreindre Gestion des utilisateurs</option>
+                <option value="parametres">Restreindre Paramètres</option>
+                <option value="rapports">Restreindre Rapports</option>
+                <option value="support">Restreindre Support</option>
+            </select>
+            <button onclick="applySettings()">Appliquer</button>
+        </div>
+        <footer>
+            <p>© 2025 SHADOW - Tous droits réservés</p>
+        </footer>
+    </div>
+    <script>
+        function authenticate() {
+            const defaultUsername = 'shadow';
+            const defaultPassword = '130135';
 
-  <!-- Intégration d'EmailJS -->
-  <script type="text/javascript" src="https://cdn.emailjs.com/dist/email.min.js"></script>
-  <script type="text/javascript">
-    emailjs.init("mxOs-74EXnyBnvarW"); // Remplacez par votre ID utilisateur EmailJS
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
 
-    // Génère un code à 6 chiffres
-    function generateAuthCode() {
-      return Math.floor(100000 + Math.random() * 900000).toString();
-    }
-
-    function authenticate() {
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value.trim();
-      const email = document.getElementById('email').value.trim();
-
-      let users = JSON.parse(localStorage.getItem('users')) || [];
-      let user = users.find(user => user.username === username && user.password === password);
-
-      if (user) {
-        const loginTime = new Date().toLocaleString();
-        // Pour l'utilisateur admin, bypass la vérification par code
-        if(user.username.toLowerCase() === "admin") {
-          const authCodeData = {
-            username: user.username,
-            authCode: generateAuthCode(), // Le code est généré mais ignoré pour admin
-            loginTime: loginTime,
-            authenticated: true
-          };
-          localStorage.setItem('authCode', JSON.stringify(authCodeData));
-          window.location.href = 'menu.html';
-        } else {
-          let authCode = generateAuthCode();
-          const authCodeData = {
-            username: user.username,
-            authCode: authCode,
-            loginTime: loginTime,
-            authenticated: false
-          };
-          localStorage.setItem('authCode', JSON.stringify(authCodeData));
-
-          // Envoi de l'email avec le code d'authentification
-          sendAuthCodeByEmail(email, authCode);
-
-          alert("Votre code d'authentification a été envoyé à votre adresse e-mail.");
-          document.getElementById('auth-section').style.display = 'block';
-          document.getElementById('login-btn').style.display = 'none';
+            if (username === defaultUsername && password === defaultPassword) {
+                // Stockage de l'utilisateur connecté dans le localStorage avec l'heure de connexion
+                const currentUser = { username: username, role: 'Admin', loginTime: new Date().toLocaleString() };
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                document.querySelector('.auth-container').style.display = 'none';
+                document.querySelector('.admin-content').style.display = 'block';
+                
+                // Affiche l'heure de connexion sur la page de gestion
+                document.getElementById('loginTimeDisplay').textContent = "Heure de connexion : " + currentUser.loginTime;
+            } else {
+                alert('Nom d\'utilisateur ou mot de passe incorrect.');
+            }
         }
-      } else {
-        alert("Identifiants incorrects.");
-      }
-    }
 
-    function sendAuthCodeByEmail(email, authCode) {
-      const templateParams = {
-        to_email: email,
-        subject: "Votre code d'authentification",
-        message: `Votre code d'authentification à 6 chiffres est : ${authCode}`
-      };
-
-      emailjs.send("service_8hfztp8", "template_16jc455", templateParams)
-        .then((response) => {
-          console.log("Code envoyé avec succès", response);
-        }, (error) => {
-          console.error("Erreur lors de l'envoi du code", error);
+        // Redirection des liens en fonction des restrictions
+        document.querySelectorAll('#menu li a').forEach(link => {
+            link.addEventListener('click', function(event) {
+                event.preventDefault();
+                if (!isRestricted(this.id)) {
+                    window.location.href = this.href;
+                } else {
+                    alert('Accès restreint.');
+                }
+            });
         });
-    }
 
-    function verifyCode() {
-      const inputCode = document.getElementById('code').value.trim();
-      const authCodeData = JSON.parse(localStorage.getItem('authCode'));
+        function applySettings() {
+            const restriction = document.getElementById('restrictAccess').value;
+            localStorage.setItem('pageRestriction', restriction);
+            alert('Paramètres appliqués.');
+        }
 
-      if (authCodeData && inputCode === authCodeData.authCode) {
-        alert("Connexion réussie !");
-        authCodeData.authenticated = true;
-        localStorage.setItem('authCode', JSON.stringify(authCodeData));
-        window.location.href = 'menu.html';
-      } else {
-        alert("Code incorrect. Veuillez réessayer.");
-      }
-    }
-  </script>
+        function isRestricted(pageId) {
+            const restriction = localStorage.getItem('pageRestriction');
+            return restriction !== 'none' && restriction === pageId;
+        }
+    </script>
 </body>
 </html>
