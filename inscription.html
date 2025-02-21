@@ -80,23 +80,43 @@
             window.location.href = "maintenance.html";
           }
         });
-      </script>
-      
-    <script>
+    
         function registerUser() {
-            const username = document.getElementById('new-username').value;
-            const password = document.getElementById('new-password').value;
-            
-            if (username && password) {
-                let users = JSON.parse(localStorage.getItem('users')) || [];
-                users.push({ username, password });
-                localStorage.setItem('users', JSON.stringify(users));
-                alert("Inscription réussie ! Vous allez être redirigé vers la connexion.");
-                window.location.href = 'connexion.html';
-            } else {
-                alert("Veuillez remplir tous les champs.");
-            }
+          const username = document.getElementById('new-username').value.trim();
+          const password = document.getElementById('new-password').value.trim();
+    
+          if (username && password) {
+            let users = JSON.parse(localStorage.getItem('users')) || [];
+            users.push({ username, password });
+            localStorage.setItem('users', JSON.stringify(users));
+            alert("Inscription réussie ! Vous allez être redirigé vers la connexion.");
+            window.location.href = 'connexion.html';
+          } else {
+            alert("Veuillez remplir tous les champs.");
+          }
         }
-    </script>
+      </script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function(){
+      if (localStorage.getItem('maintenance') === 'true') {
+        window.location.href = "maintenance.html";
+      }
+    });
+
+    function registerUser() {
+      const username = document.getElementById('new-username').value.trim();
+      const password = document.getElementById('new-password').value.trim();
+
+      if (username && password) {
+        let users = JSON.parse(localStorage.getItem('users')) || [];
+        users.push({ username, password });
+        localStorage.setItem('users', JSON.stringify(users));
+        alert("Inscription réussie ! Vous allez être redirigé vers la connexion.");
+        window.location.href = 'connexion.html';
+      } else {
+        alert("Veuillez remplir tous les champs.");
+      }
+    }
+  </script>
 </body>
 </html>
