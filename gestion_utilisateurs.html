@@ -102,7 +102,14 @@
       <button id="exportCSVBtn">Exporter CSV</button>
       <button id="resetDataBtn">Réinitialiser données</button>
     </div>
-    
+    <script>
+      // Vérifier si l'utilisateur est authentifié
+      document.addEventListener('DOMContentLoaded', function() {
+        if (!localStorage.getItem('authenticated') || localStorage.getItem('authenticated') !== 'true') {
+          window.location.href = 'Administrateur.html'; // Rediriger vers la page de connexion
+        }
+      });
+    </script>
     <table>
       <thead>
         <tr>
