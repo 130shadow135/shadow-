@@ -132,7 +132,7 @@
           "Code d'authentification : <strong>" + authCodeData.authCode + "</strong><br>" +
           "Heure de connexion : <strong>" + authCodeData.loginTime + "</strong>";
       } else {
-        window.location.href = 'administrateur.html';
+        window.location.href = 'Administrateur.html';
         return;
       }
 
@@ -220,7 +220,7 @@
       document.getElementById('logoutBtn').addEventListener('click', function(e) {
         e.preventDefault();
         localStorage.removeItem('authCode');
-        window.location.href = 'administrateur.html';
+        window.location.href = 'Administrateur.html';
       });
 
       document.getElementById('selectAll').addEventListener('change', function() {
