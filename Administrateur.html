@@ -146,8 +146,6 @@
     <div class="admin-content">
         <header>
             <h1>😊Bienvenue, Shadow</h1>
-            <!-- Affichage de l'heure de connexion -->
-            <p id="loginTimeDisplay"></p>
         </header>
         <nav>
             <div class="conteneur">
@@ -184,15 +182,12 @@
             const password = document.getElementById('password').value;
 
             if (username === defaultUsername && password === defaultPassword) {
-                // Stockage de l'utilisateur connecté dans le localStorage avec l'heure de connexion
-                const currentUser = { username: username, role: 'Admin', loginTime: new Date().toLocaleString() };
+                // Stockage de l'utilisateur connecté dans le localStorage
+                const currentUser = { username: username, role: 'Admin' };
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 
                 document.querySelector('.auth-container').style.display = 'none';
                 document.querySelector('.admin-content').style.display = 'block';
-                
-                // Affiche l'heure de connexion sur la page de gestion
-                document.getElementById('loginTimeDisplay').textContent = "Heure de connexion : " + currentUser.loginTime;
             } else {
                 alert('Nom d\'utilisateur ou mot de passe incorrect.');
             }
