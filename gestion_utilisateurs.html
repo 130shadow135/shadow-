@@ -1,419 +1,162 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gestion des Paramètres</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #1a1a2e;
-      color: #ffffff;
-    }
-    header {
-      padding: 20px;
-      background-color: #440469;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    header nav button {
-      background: #4CAF50;
-      border: none;
-      border-radius: 5px;
-      color: white;
-      padding: 10px 15px;
-      margin-right: 5px;
-      cursor: pointer;
-    }
-    header nav button:hover {
-      background: #45a049;
-    }
-    header .user-info {
-      font-size: 0.9em;
-    }
-    .content {
-      padding: 20px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
-      text-align: left;
-    }
-    th {
-      background-color: #440469;
-    }
-    form {
-      margin-top: 20px;
-    }
-    input[type="text"], input[type="password"], input[type="email"] {
-      padding: 10px;
-      margin: 5px 0;
-      width: 100%;
-      box-sizing: border-box;
-    }
-    button {
-      padding: 10px;
-      background-color: #97cf12;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #d6c808;
-    }
-    .page {
-      display: none;
-    }
-    .active {
-      display: block;
-    }
-    .actions button {
-      margin-right: 5px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrateur</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background-color: #1a1a2e; 
+            color: #fff; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+        }
+        .login-container { 
+            padding: 20px; 
+            background-color: #16213e; 
+            border-radius: 10px; 
+            box-shadow: 0 0 10px rgba(0,0,0,0.5); 
+            text-align: center;
+            width: 350px;
+        }
+        .login-container h2 {
+            margin-bottom: 20px;
+            color: #e0e0e0;
+        }
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background: #1a1a2e;
+            color: white;
+        }
+        .button {
+            background: #4CAF50;
+            padding: 10px;
+            width: 100%;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .button:hover {
+            background: #45a049;
+        }
+    </style>
 </head>
 <body>
-  <!-- Initialisation du compte admin par défaut si aucun utilisateur n'existe -->
-  <script>
-    let storedUsers = JSON.parse(localStorage.getItem('users'));
-    if (!storedUsers || storedUsers.length === 0) {
-      let defaultAdmin = { username: "shadow", password: "130135", role: "Admin" };
-      localStorage.setItem('users', JSON.stringify([defaultAdmin]));
-    }
-  </script>
-
-  <!-- Vérification d'accès : si l'utilisateur n'est pas authentifié, redirection silencieuse -->
-  <script>
-    window.addEventListener("DOMContentLoaded", function() {
-      let currentUser = localStorage.getItem("currentUser");
-      if (!currentUser) {
-        window.location.href = "Administrateur.html";
-      } else {
-        currentUser = JSON.parse(currentUser);
-        if (currentUser.role !== "Admin") {
-          window.location.href = "Administrateur.html";
-        } else {
-          document.getElementById("currentUserName").innerText = currentUser.username + " (" + currentUser.role + ")";
+    <!-- Vérification du mode maintenance -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function(){
+        if (localStorage.getItem('maintenance') === 'true') {
+          window.location.href = "maintenance.html";
         }
-      }
-    });
-  </script>
-
-  <header>
-    <h1>Gestion des Paramètres</h1>
-    <nav>
-      <button onclick="showPage('usersPage')">Utilisateurs</button>
-      <button onclick="showPage('coursesPage')">Cours</button>
-      <button onclick="showPage('examsPage')">Épreuves</button>
-    </nav>
-    <div class="user-info">
-      <span id="currentUserName"></span>
-      <button onclick="logout()">Déconnexion</button>
-    </div>
-    <button onclick="exportUsers()">Exporter CSV</button>
-  </header>
-
-  <div class="content">
-    <!-- Page Utilisateurs -->
-    <div id="usersPage" class="page active">
-      <h2>Gestion des Utilisateurs</h2>
-      <input type="text" id="searchBar" placeholder="Rechercher un utilisateur..." onkeyup="searchUser()">
-      <table>
-        <thead>
-          <tr>
-            <th>Nom d'utilisateur</th>
-            <th>Rôle</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="userTableBody"></tbody>
-      </table>
-      <form id="userForm">
-        <h2 id="userFormTitle">Ajouter un utilisateur</h2>
-        <input type="text" id="newUsername" placeholder="Nom d'utilisateur" required>
-        <input type="password" id="newPassword" placeholder="Mot de passe" required>
-        <input type="email" id="newEmail" placeholder="Email (optionnel)">
-        <select id="userRole">
-          <option value="Étudiant">Étudiant</option>
-          <option value="Professeur">Professeur</option>
-          <option value="Admin">Admin</option>
-        </select>
-        <button type="submit" id="userFormButton">Ajouter</button>
-      </form>
-    </div>
-
-    <!-- Page Cours -->
-    <div id="coursesPage" class="page">
-      <h2>Gestion des Cours</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Nom du cours</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="coursesTableBody"></tbody>
-      </table>
-      <form id="courseForm">
-        <h2 id="courseFormTitle">Ajouter un cours</h2>
-        <input type="text" id="newCourseName" placeholder="Nom du cours" required>
-        <button type="submit" id="courseFormButton">Ajouter</button>
-      </form>
-    </div>
-
-    <!-- Page Épreuves -->
-    <div id="examsPage" class="page">
-      <h2>Gestion des Épreuves</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Nom de l'épreuve</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="examsTableBody"></tbody>
-      </table>
-      <form id="examForm">
-        <h2 id="examFormTitle">Ajouter une épreuve</h2>
-        <input type="text" id="newExamName" placeholder="Nom de l'épreuve" required>
-        <button type="submit" id="examFormButton">Ajouter</button>
-      </form>
-    </div>
-  </div>
-
-  <script>
-    // Gestion de l'utilisateur courant
-    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-    document.getElementById("currentUserName").innerText = currentUser.username + " (" + currentUser.role + ")";
-
-    function logout() {
-      localStorage.removeItem("currentUser");
-      window.location.href = "Administrateur.html";
-    }
-
-    // Navigation entre les pages
-    function showPage(pageId) {
-      const pages = document.querySelectorAll('.page');
-      pages.forEach(page => page.classList.remove('active'));
-      document.getElementById(pageId).classList.add('active');
-    }
-
-    // Gestion des Utilisateurs
-    let users = JSON.parse(localStorage.getItem('users')) || [];
-    let editingUserIndex = null;
-
-    function renderUsers(filteredList = users) {
-      const userTableBody = document.getElementById('userTableBody');
-      userTableBody.innerHTML = '';
-      filteredList.forEach((user, index) => {
-        let row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${user.username}</td>
-          <td>${user.role}</td>
-          <td class="actions">
-            <button onclick="editUser(${index})">Éditer</button>
-            <button onclick="deleteUser(${index})">Supprimer</button>
-          </td>
-        `;
-        userTableBody.appendChild(row);
       });
-    }
+    </script>
 
-    function addUser(username, password, role) {
-      users.push({ username, password, role });
-      localStorage.setItem('users', JSON.stringify(users));
-      renderUsers();
-    }
+    <div class="login-container">
+        <h2>Connexion sécurisée</h2>
+        <div class="input-group">
+            <label for="username">Nom d'utilisateur</label>
+            <input type="text" id="username" placeholder="Votre nom d'utilisateur">
+        </div>
+        <div class="input-group">
+            <label for="password">Mot de passe</label>
+            <input type="password" id="password" placeholder="Votre mot de passe">
+        </div>
+        <div class="input-group">
+            <label for="email">Adresse e-mail</label>
+            <input type="email" id="email" placeholder="Votre adresse e-mail">
+        </div>
+        <button id="login-btn" class="button" onclick="authenticate()">Se connecter</button>
+        <!-- Section pour saisir le code envoyé par email -->
+        <div id="auth-section" style="display: none;">
+            <div class="input-group">
+                <label for="code">Code d'authentification</label>
+                <input type="text" id="code" placeholder="Code à 6 chiffres">
+            </div>
+            <button class="button" onclick="verifyCode()">Vérifier le code</button>
+        </div>
+        <div style="margin-top: 15px;">
+            Pas encore inscrit ? <a href="inscription.html" style="color:#4CAF50;text-decoration:none;">Inscrivez-vous ici</a>
+        </div>
+    </div>
 
-    function updateUser(index, username, password, role) {
-      users[index] = { username, password, role };
-      localStorage.setItem('users', JSON.stringify(users));
-      renderUsers();
-    }
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script>
+        emailjs.init("mxOs-74EXnyBnvarW"); // Remplacez par votre ID utilisateur EmailJS
 
-    function deleteUser(index) {
-      users.splice(index, 1);
-      localStorage.setItem('users', JSON.stringify(users));
-      renderUsers();
-    }
+        // Génère un code à 6 chiffres
+        function generateAuthCode() {
+            return Math.floor(100000 + Math.random() * 900000).toString();
+        }
 
-    function searchUser() {
-      let searchQuery = document.getElementById('searchBar').value.toLowerCase();
-      let filteredUsers = users.filter(user => user.username.toLowerCase().includes(searchQuery));
-      renderUsers(filteredUsers);
-    }
+        function authenticate() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const email = document.getElementById('email').value.trim();
+            let users = JSON.parse(localStorage.getItem('users')) || [];
+            let user = users.find(user => user.username === username && user.password === password);
 
-    function exportUsers() {
-      let csvContent = "Nom d'utilisateur,Rôle\n" + users.map(user => `${user.username},${user.role}`).join("\n");
-      let blob = new Blob([csvContent], { type: "text/csv" });
-      let link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "utilisateurs.csv";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
+            if (user) {
+                let authCode = generateAuthCode();
+                let loginTime = new Date().toLocaleString();
+                // Stocke un objet authData contenant le nom, le code, l'heure et le flag authenticated (initialement false)
+                let authData = { username: username, code: authCode, loginTime: loginTime, authenticated: false };
+                localStorage.setItem('authData', JSON.stringify(authData));
 
-    function editUser(index) {
-      const user = users[index];
-      document.getElementById('newUsername').value = user.username;
-      document.getElementById('newPassword').value = user.password;
-      document.getElementById('userRole').value = user.role;
-      document.getElementById('userFormTitle').innerText = "Modifier l'utilisateur";
-      document.getElementById('userFormButton').innerText = "Modifier";
-      editingUserIndex = index;
-    }
+                // Envoi de l'email avec le code d'authentification
+                sendAuthCodeByEmail(email, authCode);
 
-    document.getElementById('userForm').addEventListener('submit', function(event) {
-      event.preventDefault();
-      let username = document.getElementById('newUsername').value;
-      let password = document.getElementById('newPassword').value;
-      let role = document.getElementById('userRole').value;
-      if (editingUserIndex !== null) {
-        updateUser(editingUserIndex, username, password, role);
-        editingUserIndex = null;
-        document.getElementById('userFormTitle').innerText = "Ajouter un utilisateur";
-        document.getElementById('userFormButton').innerText = "Ajouter";
-      } else {
-        addUser(username, password, role);
-      }
-      document.getElementById('userForm').reset();
-    });
+                alert("Votre code d'authentification a été envoyé à votre adresse e-mail.");
+                document.getElementById('auth-section').style.display = 'block';
+                document.getElementById('login-btn').style.display = 'none';
+            } else {
+                alert("Identifiants incorrects.");
+            }
+        }
 
-    renderUsers();
+        function sendAuthCodeByEmail(email, authCode) {
+            const templateParams = {
+                to_email: email,
+                subject: "Votre code d'authentification",
+                message: `Votre code d'authentification à 6 chiffres est : ${authCode}`
+            };
 
-    // Gestion des Cours
-    let courses = JSON.parse(localStorage.getItem('courses')) || [];
-    let editingCourseIndex = null;
+            emailjs.send("service_8hfztp8", "template_16jc455", templateParams)
+                .then((response) => {
+                    console.log("Code envoyé avec succès", response);
+                }, (error) => {
+                    console.error("Erreur lors de l'envoi du code", error);
+                });
+        }
 
-    function renderCourses() {
-      const coursesTableBody = document.getElementById('coursesTableBody');
-      coursesTableBody.innerHTML = '';
-      courses.forEach((course, index) => {
-        let row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${course.name}</td>
-          <td class="actions">
-            <button onclick="editCourse(${index})">Éditer</button>
-            <button onclick="deleteCourse(${index})">Supprimer</button>
-          </td>
-        `;
-        coursesTableBody.appendChild(row);
-      });
-    }
+        function verifyCode() {
+            const inputCode = document.getElementById('code').value.trim();
+            const authData = JSON.parse(localStorage.getItem('authData'));
 
-    function addCourse(courseName) {
-      courses.push({ name: courseName });
-      localStorage.setItem('courses', JSON.stringify(courses));
-      renderCourses();
-    }
-
-    function updateCourse(index, courseName) {
-      courses[index] = { name: courseName };
-      localStorage.setItem('courses', JSON.stringify(courses));
-      renderCourses();
-    }
-
-    function deleteCourse(index) {
-      courses.splice(index, 1);
-      localStorage.setItem('courses', JSON.stringify(courses));
-      renderCourses();
-    }
-
-    function editCourse(index) {
-      const course = courses[index];
-      document.getElementById('newCourseName').value = course.name;
-      document.getElementById('courseFormTitle').innerText = "Modifier le cours";
-      document.getElementById('courseFormButton').innerText = "Modifier";
-      editingCourseIndex = index;
-    }
-
-    document.getElementById('courseForm').addEventListener('submit', function(event) {
-      event.preventDefault();
-      let courseName = document.getElementById('newCourseName').value;
-      if (editingCourseIndex !== null) {
-        updateCourse(editingCourseIndex, courseName);
-        editingCourseIndex = null;
-        document.getElementById('courseFormTitle').innerText = "Ajouter un cours";
-        document.getElementById('courseFormButton').innerText = "Ajouter";
-      } else {
-        addCourse(courseName);
-      }
-      document.getElementById('courseForm').reset();
-    });
-
-    renderCourses();
-
-    // Gestion des Épreuves
-    let exams = JSON.parse(localStorage.getItem('exams')) || [];
-    let editingExamIndex = null;
-
-    function renderExams() {
-      const examsTableBody = document.getElementById('examsTableBody');
-      examsTableBody.innerHTML = '';
-      exams.forEach((exam, index) => {
-        let row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${exam.name}</td>
-          <td class="actions">
-            <button onclick="editExam(${index})">Éditer</button>
-            <button onclick="deleteExam(${index})">Supprimer</button>
-          </td>
-        `;
-        examsTableBody.appendChild(row);
-      });
-    }
-
-    function addExam(examName) {
-      exams.push({ name: examName });
-      localStorage.setItem('exams', JSON.stringify(exams));
-      renderExams();
-    }
-
-    function updateExam(index, examName) {
-      exams[index] = { name: examName };
-      localStorage.setItem('exams', JSON.stringify(exams));
-      renderExams();
-    }
-
-    function deleteExam(index) {
-      exams.splice(index, 1);
-      localStorage.setItem('exams', JSON.stringify(exams));
-      renderExams();
-    }
-
-    function editExam(index) {
-      const exam = exams[index];
-      document.getElementById('newExamName').value = exam.name;
-      document.getElementById('examFormTitle').innerText = "Modifier l'épreuve";
-      document.getElementById('examFormButton').innerText = "Modifier";
-      editingExamIndex = index;
-    }
-
-    document.getElementById('examForm').addEventListener('submit', function(event) {
-      event.preventDefault();
-      let examName = document.getElementById('newExamName').value;
-      if (editingExamIndex !== null) {
-        updateExam(editingExamIndex, examName);
-        editingExamIndex = null;
-        document.getElementById('examFormTitle').innerText = "Ajouter une épreuve";
-        document.getElementById('examFormButton').innerText = "Ajouter";
-      } else {
-        addExam(examName);
-      }
-      document.getElementById('examForm').reset();
-    });
-
-    renderExams();
-  </script>
+            if (authData && inputCode === authData.code) {
+                alert("Connexion réussie !");
+                authData.authenticated = true;
+                localStorage.setItem('authData', JSON.stringify(authData));
+                window.location.href = 'menu.html';
+            } else {
+                alert("Code incorrect. Veuillez réessayer.");
+            }
+        }
+    </script>
 </body>
 </html>
