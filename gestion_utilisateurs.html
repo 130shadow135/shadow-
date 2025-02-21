@@ -78,14 +78,7 @@
       margin-right: 10px;
     }
   </style>
-  <script>
-    // Vérifier si l'utilisateur est authentifié
-    document.addEventListener('DOMContentLoaded', function() {
-      if (!localStorage.getItem('authenticated') || localStorage.getItem('authenticated') !== 'true') {
-        window.location.href = 'Administrateur.html'; // Rediriger vers la page de connexion
-      }
-    });
-  </script>
+
 </head>
 <body>
   <header>
@@ -102,14 +95,6 @@
       <button id="exportCSVBtn">Exporter CSV</button>
       <button id="resetDataBtn">Réinitialiser données</button>
     </div>
-    <script>
-      // Vérifier si l'utilisateur est authentifié
-      document.addEventListener('DOMContentLoaded', function() {
-        if (!localStorage.getItem('authenticated') || localStorage.getItem('authenticated') !== 'true') {
-          window.location.href = 'Administrateur.html'; // Rediriger vers la page de connexion
-        }
-      });
-    </script>
     <table>
       <thead>
         <tr>
@@ -131,9 +116,19 @@
     </form>
   </div>
   <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+      if (currentUser) {
+        document.getElementById('currentUserDisplay').textContent = "Connecté en tant que " + currentUser.username;
+      } else {
+        // Rediriger vers la page de connexion si aucune donnée de connexion n'est trouvée
+        window.location.href = 'Administrateur.html';
+      }
+    });
+
+    // Votre code de gestion (ajout, modification, suppression, etc.)
     let users = JSON.parse(localStorage.getItem('users')) || [];
     let sortDirection = 'asc';
-
     // Fonction pour ajouter un utilisateur
     function addUser(username, password) {
       users.push({ username, password });
