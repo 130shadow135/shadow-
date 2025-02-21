@@ -64,6 +64,7 @@
     <h1>Gestion des utilisateurs</h1>
     <a href="#" class="logout" id="logoutBtn">Déconnexion</a>
   </header>
+  
   <div class="content">
     <input type="search" id="searchInput" placeholder="Rechercher un utilisateur...">
     
@@ -71,7 +72,11 @@
       <button id="bulkDeleteBtn">Supprimer sélection</button>
       <button id="exportCSVBtn">Exporter CSV</button>
       <button id="resetDataBtn">Réinitialiser données</button>
+      <button id="exportJSONBtn">Exporter JSON</button>
+      <input type="file" id="importJSONInput">
+      <button id="importJSONBtn">Importer JSON</button>
     </div>
+    
     <table>
       <thead>
         <tr>
@@ -80,17 +85,18 @@
           <th>Mot de passe</th>
           <th>Rôle</th>
           <th>Dernière connexion</th>
+          <th>Code 2FA</th>
           <th>Actions</th>
         </tr>
       </thead>
-      <tbody id="userTableBody">
-      </tbody>
+      <tbody id="userTableBody"></tbody>
     </table>
+
     <form id="userForm">
       <h2>Ajouter un utilisateur</h2>
       <input type="text" id="newUsername" placeholder="Nom d'utilisateur" required>
       <input type="password" id="newPassword" placeholder="Mot de passe" required>
-      <select id="newRole" required>
+      <select id="newRole">
         <option value="Etudiant">Étudiant</option>
         <option value="Professeur">Professeur</option>
         <option value="Admin">Administrateur</option>
@@ -107,31 +113,22 @@
       } else {
         window.location.href = 'Administrateur.html';
       }
+
+      renderUsers();
     });
-  
+
     let users = JSON.parse(localStorage.getItem('users')) || [];
-  
-    function addUser(username, password) {
-      users.push({ username, password, role: "Etudiant", lastLogin: "Jamais" });
+
+    function addUser(username, password, role) {
+      users.push({ username, password, role, lastLogin: "Jamais", authCode: "Non généré" });
       localStorage.setItem('users', JSON.stringify(users));
       renderUsers();
     }
-  
-    function updateLoginTime(username) {
-      const now = new Date().toLocaleString();
-      users = users.map(user => {
-        if (user.username === username) {
-          return { ...user, lastLogin: now };
-        }
-        return user;
-      });
-      localStorage.setItem('users', JSON.stringify(users));
-    }
-  
-function renderUsers(filter = "") {
-    const userTableBody = document.getElementById('userTableBody');
-    userTableBody.innerHTML = '';
-    users.forEach((user, index) => {
+
+    function renderUsers(filter = "") {
+      const userTableBody = document.getElementById('userTableBody');
+      userTableBody.innerHTML = '';
+      users.forEach((user, index) => {
         if (filter && !user.username.toLowerCase().includes(filter.toLowerCase())) return;
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -146,20 +143,52 @@ function renderUsers(filter = "") {
             </td>
         `;
         userTableBody.appendChild(row);
-    });
-}
+      });
+    }
 
-  
+    function exportJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(users, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", "utilisateurs.json");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      document.body.removeChild(downloadAnchor);
+    }
+
+    function importJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+          try {
+              const importedUsers = JSON.parse(event.target.result);
+              if (Array.isArray(importedUsers)) {
+                  localStorage.setItem('users', JSON.stringify(importedUsers));
+                  alert("Importation réussie !");
+                  renderUsers();
+              } else {
+                  alert("Format de fichier invalide.");
+              }
+          } catch (error) {
+              alert("Erreur de lecture du fichier JSON.");
+          }
+      };
+      reader.readAsText(file);
+    }
+
+    document.getElementById('importJSONInput').addEventListener('change', importJSON);
+    document.getElementById('exportJSONBtn').addEventListener('click', exportJSON);
+
     document.getElementById('userForm').addEventListener('submit', function(event) {
       event.preventDefault();
       const username = document.getElementById('newUsername').value;
       const password = document.getElementById('newPassword').value;
-      addUser(username, password);
+      const role = document.getElementById('newRole').value;
+      addUser(username, password, role);
       this.reset();
     });
-  
-    renderUsers();
   </script>
-  
 </body>
 </html>
