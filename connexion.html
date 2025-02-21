@@ -106,85 +106,55 @@
         emailjs.init("mxOs-74EXnyBnvarW"); // Remplacez par votre ID utilisateur EmailJS
 
         // Génère un code à 6 chiffres
-        function generateAuthCode() {
-            return Math.floor(100000 + Math.random() * 900000).toString();
-        }
+function generateAuthCode() {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+}
 
-        function authenticate() {
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
-            const email = document.getElementById('email').value.trim();
-            let users = JSON.parse(localStorage.getItem('users')) || [];
-            let user = users.find(user => user.username === username && user.password === password);
-
-            if (user) {
-                let authCode = generateAuthCode();
-                let loginTime = new Date().toLocaleString();
-                // Stocke un objet authData contenant le nom, le code généré, l'heure et un flag d'authentification initialisé à false
-                let authData = { username: user.username, authCode: authCode, loginTime: loginTime, authenticated: false };
-                localStorage.setItem('authData', JSON.stringify(authData));
-
-                // Envoi de l'email avec le code d'authentification
-                sendAuthCodeByEmail(email, authCode);
-
-                alert("Votre code d'authentification a été envoyé à votre adresse e-mail.");
-                document.getElementById('auth-section').style.display = 'block';
-                document.getElementById('login-btn').style.display = 'none';
-            } else {
-                alert("Identifiants incorrects.");
-            }
-        }
-
-        function sendAuthCodeByEmail(email, authCode) {
-            const templateParams = {
-                to_email: email,
-                subject: "Votre code d'authentification",
-                message: `Votre code d'authentification à 6 chiffres est : ${authCode}`
-            };
-
-            emailjs.send("service_8hfztp8", "template_16jc455", templateParams)
-                .then((response) => {
-                    console.log("Code envoyé avec succès", response);
-                }, (error) => {
-                    console.error("Erreur lors de l'envoi du code", error);
-                });
-        }
-
-        function verifyCode() {
-            const inputCode = document.getElementById('code').value.trim();
-            const authData = JSON.parse(localStorage.getItem('authData'));
-
-            if (authData && inputCode === authData.authCode) {
-                alert("Connexion réussie !");
-                authData.authenticated = true;
-                localStorage.setItem('authData', JSON.stringify(authData));
-                window.location.href = 'menu.html';
-            } else {
-                alert("Code incorrect. Veuillez réessayer.");
-            }
-        }
-        function authenticate() {
+function authenticate() {
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value.trim();
+    const email = document.getElementById('email').value.trim(); // Ajout pour récupérer l'email
     let users = JSON.parse(localStorage.getItem('users')) || [];
     let user = users.find(user => user.username === username && user.password === password);
 
     if (user) {
-        // Met à jour l'heure de connexion
+        // Générer un code 2FA aléatoire
+        const authCode = generateAuthCode();
+
+        // Mettre à jour l'heure de connexion et le code 2FA dans localStorage
         const now = new Date().toLocaleString();
-        users = users.map(u => u.username === username ? { ...u, lastLogin: now } : u);
+        users = users.map(u => u.username === username ? { ...u, lastLogin: now, authCode: authCode } : u);
         localStorage.setItem('users', JSON.stringify(users));
 
-        // Stocke les informations de connexion
-        const currentUser = { username: user.username, role: user.role };
+        // Stocker les infos de connexion
+        const currentUser = { username: user.username, role: user.role, authCode: authCode };
         localStorage.setItem('currentUser', JSON.stringify(currentUser));
 
-        alert("Connexion réussie !");
+        // Envoyer le code 2FA par email
+        sendAuthCodeByEmail(email, authCode);
+
+        alert("Connexion réussie ! Votre code 2FA a été envoyé à votre email.");
         window.location.href = 'menu.html';
     } else {
         alert("Identifiants incorrects.");
     }
 }
+
+function sendAuthCodeByEmail(email, authCode) {
+    const templateParams = {
+        to_email: email,
+        subject: "Votre code d'authentification",
+        message: `Votre code d'authentification 2FA est : ${authCode}`
+    };
+
+    emailjs.send("service_8hfztp8", "template_16jc455", templateParams)
+        .then((response) => {
+            console.log("Code 2FA envoyé avec succès", response);
+        }, (error) => {
+            console.error("Erreur lors de l'envoi du code 2FA", error);
+        });
+}
+
 
     </script>
 </body>
