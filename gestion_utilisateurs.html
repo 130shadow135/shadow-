@@ -9,20 +9,16 @@
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
-      background-color: #1a1a2e; /* Bleu nuit */
+      background-color: #1a1a2e;
       color: #ffffff;
     }
     header {
       padding: 20px;
       background-color: #440469;
+      color: white;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      flex-wrap: wrap;
-    }
-    #currentUserDisplay {
-      font-size: 0.9em;
-      margin-top: 10px;
     }
     .content {
       padding: 20px;
@@ -44,7 +40,7 @@
     form {
       margin-top: 20px;
     }
-    input[type="text"], input[type="password"], input[type="search"] {
+    input, select {
       padding: 10px;
       margin: 5px 0;
       width: 100%;
@@ -61,42 +57,16 @@
     button:hover {
       background-color: #45a049;
     }
-    .action-btn {
-      margin-right: 5px;
-    }
-    a.logout {
-      color: #ffffff;
-      text-decoration: none;
-      font-weight: bold;
-      background-color: #4CAF50;
-      padding: 8px 12px;
-      border-radius: 5px;
-    }
-    a.logout:hover {
-      background-color: #45a049;
-    }
-    .extra-actions {
-      margin-bottom: 20px;
-    }
-    .extra-actions button {
-      margin-right: 10px;
-    }
   </style>
 </head>
 <body>
   <header>
-    <div>
-      <h1>Gestion des utilisateurs</h1>
-      <!-- Bloc affichant les informations d'authentification -->
-      <div id="currentUserDisplay"></div>
-    </div>
+    <h1>Gestion des utilisateurs</h1>
     <a href="#" class="logout" id="logoutBtn">Déconnexion</a>
   </header>
   <div class="content">
-    <!-- Champ de recherche -->
     <input type="search" id="searchInput" placeholder="Rechercher un utilisateur...">
     
-    <!-- Actions supplémentaires -->
     <div class="extra-actions">
       <button id="bulkDeleteBtn">Supprimer sélection</button>
       <button id="exportCSVBtn">Exporter CSV</button>
@@ -106,162 +76,90 @@
       <thead>
         <tr>
           <th><input type="checkbox" id="selectAll"></th>
-          <th id="thUsername">Nom d'utilisateur</th>
+          <th>Nom d'utilisateur</th>
           <th>Mot de passe</th>
+          <th>Rôle</th>
+          <th>Dernière connexion</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody id="userTableBody">
-        <!-- Les utilisateurs seront ajoutés ici dynamiquement -->
       </tbody>
     </table>
     <form id="userForm">
       <h2>Ajouter un utilisateur</h2>
       <input type="text" id="newUsername" placeholder="Nom d'utilisateur" required>
       <input type="password" id="newPassword" placeholder="Mot de passe" required>
+      <select id="newRole" required>
+        <option value="Etudiant">Étudiant</option>
+        <option value="Professeur">Professeur</option>
+        <option value="Admin">Administrateur</option>
+      </select>
       <button type="submit">Ajouter</button>
     </form>
   </div>
+
   <script>
     document.addEventListener("DOMContentLoaded", function() {
-      // Récupère l'objet stocké sous la clé "authCode"
-      const authCodeData = JSON.parse(localStorage.getItem('authCode'));
-      if (authCodeData && authCodeData.authenticated) {
-        document.getElementById('currentUserDisplay').innerHTML =
-          "Connecté en tant que <strong>" + authCodeData.username + "</strong><br>" +
-          "Code d'authentification : <strong>" + authCodeData.authCode + "</strong><br>" +
-          "Heure de connexion : <strong>" + authCodeData.loginTime + "</strong>";
+      const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+      if (currentUser && currentUser.role === 'Admin') {
+        document.querySelector('header').insertAdjacentHTML('beforeend', `<span>Connecté en tant que ${currentUser.username} (${currentUser.role})</span>`);
       } else {
         window.location.href = 'Administrateur.html';
-        return;
       }
-
-      let users = JSON.parse(localStorage.getItem('users')) || [];
-      let sortDirection = 'asc';
-
-      function addUser(username, password) {
-        users.push({ username, password });
-        localStorage.setItem('users', JSON.stringify(users));
-        renderUsers();
-      }
-
-      function deleteUser(index) {
-        users.splice(index, 1);
-        localStorage.setItem('users', JSON.stringify(users));
-        renderUsers();
-      }
-
-      function editUser(index) {
-        const currentUser = users[index];
-        const newUsername = prompt("Modifier le nom d'utilisateur :", currentUser.username);
-        if(newUsername === null || newUsername.trim() === "") return;
-        const newPassword = prompt("Modifier le mot de passe :", currentUser.password);
-        if(newPassword === null || newPassword.trim() === "") return;
-        users[index] = { username: newUsername.trim(), password: newPassword.trim() };
-        localStorage.setItem('users', JSON.stringify(users));
-        renderUsers();
-      }
-
-      function exportCSV() {
-        let csvContent = "data:text/csv;charset=utf-8,";
-        csvContent += "Nom d'utilisateur,Mot de passe\n";
-        users.forEach(user => {
-          csvContent += `${user.username},${user.password}\n`;
-        });
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "users.csv");
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
-
-      function sortUsers() {
-        users.sort((a, b) => {
-          if (a.username.toLowerCase() < b.username.toLowerCase()) return sortDirection === 'asc' ? -1 : 1;
-          if (a.username.toLowerCase() > b.username.toLowerCase()) return sortDirection === 'asc' ? 1 : -1;
-          return 0;
-        });
-      }
-
-      function renderUsers(filter = "") {
-        sortUsers();
-        const userTableBody = document.getElementById('userTableBody');
-        userTableBody.innerHTML = '';
-        users.forEach((user, index) => {
-          if(filter && !user.username.toLowerCase().includes(filter.toLowerCase())) return;
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td><input type="checkbox" class="selectUser" data-username="${user.username}"></td>
-            <td>${user.username}</td>
-            <td>${user.password}</td>
-            <td>
-                <button class="action-btn" onclick="editUser(${index})">Modifier</button>
-                <button class="action-btn" onclick="deleteUser(${index})">Supprimer</button>
-            </td>
-          `;
-          userTableBody.appendChild(row);
-        });
-      }
-
-      document.getElementById('userForm').addEventListener('submit', function(event) {
-        event.preventDefault();
-        const username = document.getElementById('newUsername').value;
-        const password = document.getElementById('newPassword').value;
-        addUser(username, password);
-        this.reset();
-      });
-
-      document.getElementById('searchInput').addEventListener('input', function() {
-        renderUsers(this.value);
-      });
-
-      document.getElementById('logoutBtn').addEventListener('click', function(e) {
-        e.preventDefault();
-        localStorage.removeItem('authCode');
-        window.location.href = 'Administrateur.html';
-      });
-
-      document.getElementById('selectAll').addEventListener('change', function() {
-        const checked = this.checked;
-        document.querySelectorAll('.selectUser').forEach(cb => {
-          cb.checked = checked;
-        });
-      });
-
-      document.getElementById('bulkDeleteBtn').addEventListener('click', function() {
-        const selectedUsernames = Array.from(document.querySelectorAll('.selectUser'))
-                                    .filter(cb => cb.checked)
-                                    .map(cb => cb.getAttribute('data-username'));
-        if(selectedUsernames.length === 0) {
-          alert("Aucun utilisateur sélectionné.");
-          return;
-        }
-        if(confirm(`Supprimer ${selectedUsernames.length} utilisateur(s) ?`)) {
-          users = users.filter(user => !selectedUsernames.includes(user.username));
-          localStorage.setItem('users', JSON.stringify(users));
-          renderUsers();
-        }
-      });
-
-      document.getElementById('exportCSVBtn').addEventListener('click', exportCSV);
-
-      document.getElementById('resetDataBtn').addEventListener('click', function() {
-        if(confirm("Voulez-vous vraiment réinitialiser toutes les données utilisateurs ?")) {
-          users = [];
-          localStorage.setItem('users', JSON.stringify(users));
-          renderUsers();
-        }
-      });
-
-      document.getElementById('thUsername').addEventListener('click', function() {
-        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-        renderUsers(document.getElementById('searchInput').value);
-      });
-
-      renderUsers();
     });
+  
+    let users = JSON.parse(localStorage.getItem('users')) || [];
+  
+    function addUser(username, password) {
+      users.push({ username, password, role: "Etudiant", lastLogin: "Jamais" });
+      localStorage.setItem('users', JSON.stringify(users));
+      renderUsers();
+    }
+  
+    function updateLoginTime(username) {
+      const now = new Date().toLocaleString();
+      users = users.map(user => {
+        if (user.username === username) {
+          return { ...user, lastLogin: now };
+        }
+        return user;
+      });
+      localStorage.setItem('users', JSON.stringify(users));
+    }
+  
+    function renderUsers(filter = "") {
+      const userTableBody = document.getElementById('userTableBody');
+      userTableBody.innerHTML = '';
+      users.forEach((user, index) => {
+        if (filter && !user.username.toLowerCase().includes(filter.toLowerCase())) return;
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td><input type="checkbox" class="selectUser" data-username="${user.username}"></td>
+          <td>${user.username}</td>
+          <td>${user.password}</td>
+          <td>${user.role}</td>
+          <td>${user.lastLogin || "Jamais"}</td>
+          <td>${user.authCode || "Non généré"}</td>
+          <td>
+              <button class="action-btn" onclick="editUser(${index})">Modifier Rôle</button>
+              <button class="action-btn" onclick="deleteUser(${index})">Supprimer</button>
+          </td>
+        `;
+        userTableBody.appendChild(row);
+      });
+    }
+  
+    document.getElementById('userForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      const username = document.getElementById('newUsername').value;
+      const password = document.getElementById('newPassword').value;
+      addUser(username, password);
+      this.reset();
+    });
+  
+    renderUsers();
   </script>
+  
 </body>
 </html>
