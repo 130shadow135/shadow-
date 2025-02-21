@@ -15,10 +15,14 @@
     header {
       padding: 20px;
       background-color: #440469;
-      color: white;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+    }
+    #currentUserDisplay {
+      font-size: 0.9em;
+      margin-top: 10px;
     }
     .content {
       padding: 20px;
@@ -78,11 +82,11 @@
       margin-right: 10px;
     }
   </style>
-
 </head>
 <body>
   <header>
-   <h1>Gestion des utilisateurs</h1>
+    <div>
+      <h1>Gestion des utilisateurs</h1>
       <!-- Bloc affichant les informations d'authentification -->
       <div id="currentUserDisplay"></div>
     </div>
@@ -119,26 +123,9 @@
     </form>
   </div>
   <script>
-        document.addEventListener("DOMContentLoaded", function() {
-      const authCodeData = JSON.parse(localStorage.getItem('authCode'));
-      if (authCodeData && authCodeData.authenticated) {
-        document.getElementById('currentUserDisplay').innerHTML =
-          "Connecté en tant que <strong>" + authCodeData.username + "</strong><br>" +
-          "Code d'authentification : <strong>" + authCodeData.authCode + "</strong><br>" +
-          "Heure de connexion : <strong>" + authCodeData.loginTime + "</strong>";
-      } else {
-        window.location.href = 'connexion.html';
-      }
-    });
-
-    // ... (Votre code de gestion des utilisateurs) ...
-
-    document.getElementById('logoutBtn').addEventListener('click', function(e) {
-      e.preventDefault();
-      localStorage.removeItem('authCode');
-      window.location.href = 'connexion.html';
-    // Au chargement, récupère l'objet stocké sous la clé "authCode"
+    // Exécution unique au chargement de la page
     document.addEventListener("DOMContentLoaded", function() {
+      // Récupère l'objet stocké sous la clé "authCode"
       const authCodeData = JSON.parse(localStorage.getItem('authCode'));
       if (authCodeData && authCodeData.authenticated) {
         document.getElementById('currentUserDisplay').innerHTML =
@@ -146,152 +133,137 @@
           "Code d'authentification : <strong>" + authCodeData.authCode + "</strong><br>" +
           "Heure de connexion : <strong>" + authCodeData.loginTime + "</strong>";
       } else {
-        // Si aucune session valide, redirige vers la page de connexion
         window.location.href = 'connexion.html';
-      }
-    });
-
-    // Votre code de gestion (ajout, modification, suppression, etc.)
-    let users = JSON.parse(localStorage.getItem('users')) || [];
-    let sortDirection = 'asc';
-    // Fonction pour ajouter un utilisateur
-    function addUser(username, password) {
-      users.push({ username, password });
-      localStorage.setItem('users', JSON.stringify(users));
-      renderUsers();
-    }
-
-    // Fonction pour supprimer un utilisateur
-    function deleteUser(index) {
-      users.splice(index, 1);
-      localStorage.setItem('users', JSON.stringify(users));
-      renderUsers();
-    }
-
-    // Fonction pour modifier un utilisateur
-    function editUser(index) {
-      const currentUser = users[index];
-      const newUsername = prompt("Modifier le nom d'utilisateur :", currentUser.username);
-      if(newUsername === null || newUsername.trim() === "") return;
-      const newPassword = prompt("Modifier le mot de passe :", currentUser.password);
-      if(newPassword === null || newPassword.trim() === "") return;
-      users[index] = { username: newUsername.trim(), password: newPassword.trim() };
-      localStorage.setItem('users', JSON.stringify(users));
-      renderUsers();
-    }
-
-    // Fonction pour exporter les utilisateurs au format CSV
-    function exportCSV() {
-      let csvContent = "data:text/csv;charset=utf-8,";
-      csvContent += "Nom d'utilisateur,Mot de passe\n";
-      users.forEach(user => {
-        csvContent += `${user.username},${user.password}\n`;
-      });
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", "users.csv");
-      document.body.appendChild(link); // Requis pour Firefox
-      link.click();
-      document.body.removeChild(link);
-    }
-
-    // Fonction pour trier les utilisateurs par nom
-    function sortUsers() {
-      users.sort((a, b) => {
-        if (a.username.toLowerCase() < b.username.toLowerCase()) return sortDirection === 'asc' ? -1 : 1;
-        if (a.username.toLowerCase() > b.username.toLowerCase()) return sortDirection === 'asc' ? 1 : -1;
-        return 0;
-      });
-    }
-
-    // Fonction pour afficher les utilisateurs
-    function renderUsers(filter = "") {
-      sortUsers();
-      const userTableBody = document.getElementById('userTableBody');
-      userTableBody.innerHTML = '';
-      users.forEach((user, index) => {
-        // Filtrer si une recherche est active
-        if(filter && !user.username.toLowerCase().includes(filter.toLowerCase())) return;
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td><input type="checkbox" class="selectUser" data-username="${user.username}"></td>
-          <td>${user.username}</td>
-          <td>${user.password}</td>
-          <td>
-              <button class="action-btn" onclick="editUser(${index})">Modifier</button>
-              <button class="action-btn" onclick="deleteUser(${index})">Supprimer</button>
-          </td>
-        `;
-        userTableBody.appendChild(row);
-      });
-    }
-
-    // Écouteur d'événement pour le formulaire d'ajout
-    document.getElementById('userForm').addEventListener('submit', function(event) {
-      event.preventDefault();
-      const username = document.getElementById('newUsername').value;
-      const password = document.getElementById('newPassword').value;
-      addUser(username, password);
-      this.reset();
-    });
-
-    // Écouteur pour le champ de recherche
-    document.getElementById('searchInput').addEventListener('input', function() {
-      renderUsers(this.value);
-    });
-
-    // Bouton de déconnexion
-    document.getElementById('logoutBtn').addEventListener('click', function(e) {
-      e.preventDefault();
-      localStorage.removeItem('authenticated');
-      window.location.href = 'connexion.html';
-    });
-
-    // Sélectionner/Déselectionner tous les utilisateurs
-    document.getElementById('selectAll').addEventListener('change', function() {
-      const checked = this.checked;
-      document.querySelectorAll('.selectUser').forEach(cb => {
-        cb.checked = checked;
-      });
-    });
-
-    // Suppression groupée
-    document.getElementById('bulkDeleteBtn').addEventListener('click', function() {
-      const selectedUsernames = Array.from(document.querySelectorAll('.selectUser'))
-                                  .filter(cb => cb.checked)
-                                  .map(cb => cb.getAttribute('data-username'));
-      if(selectedUsernames.length === 0) {
-        alert("Aucun utilisateur sélectionné.");
         return;
       }
-      if(confirm(`Supprimer ${selectedUsernames.length} utilisateur(s) ?`)) {
-        users = users.filter(user => !selectedUsernames.includes(user.username));
+
+      // Déclaration des variables et fonctions de gestion des utilisateurs
+      let users = JSON.parse(localStorage.getItem('users')) || [];
+      let sortDirection = 'asc';
+
+      function addUser(username, password) {
+        users.push({ username, password });
         localStorage.setItem('users', JSON.stringify(users));
         renderUsers();
       }
-    });
 
-    // Export CSV
-    document.getElementById('exportCSVBtn').addEventListener('click', exportCSV);
-
-    // Réinitialisation de toutes les données
-    document.getElementById('resetDataBtn').addEventListener('click', function() {
-      if(confirm("Voulez-vous vraiment réinitialiser toutes les données utilisateurs ?")) {
-        users = [];
+      function deleteUser(index) {
+        users.splice(index, 1);
         localStorage.setItem('users', JSON.stringify(users));
         renderUsers();
       }
-    });
 
-    // Tri par clic sur l'en-tête "Nom d'utilisateur"
-    document.getElementById('thUsername').addEventListener('click', function() {
-      sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-      renderUsers(document.getElementById('searchInput').value);
-    });
+      function editUser(index) {
+        const currentUser = users[index];
+        const newUsername = prompt("Modifier le nom d'utilisateur :", currentUser.username);
+        if(newUsername === null || newUsername.trim() === "") return;
+        const newPassword = prompt("Modifier le mot de passe :", currentUser.password);
+        if(newPassword === null || newPassword.trim() === "") return;
+        users[index] = { username: newUsername.trim(), password: newPassword.trim() };
+        localStorage.setItem('users', JSON.stringify(users));
+        renderUsers();
+      }
 
-    // Afficher les utilisateurs au chargement de la page
-    renderUsers();
+      function exportCSV() {
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "Nom d'utilisateur,Mot de passe\n";
+        users.forEach(user => {
+          csvContent += `${user.username},${user.password}\n`;
+        });
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "users.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+
+      function sortUsers() {
+        users.sort((a, b) => {
+          if (a.username.toLowerCase() < b.username.toLowerCase()) return sortDirection === 'asc' ? -1 : 1;
+          if (a.username.toLowerCase() > b.username.toLowerCase()) return sortDirection === 'asc' ? 1 : -1;
+          return 0;
+        });
+      }
+
+      function renderUsers(filter = "") {
+        sortUsers();
+        const userTableBody = document.getElementById('userTableBody');
+        userTableBody.innerHTML = '';
+        users.forEach((user, index) => {
+          if(filter && !user.username.toLowerCase().includes(filter.toLowerCase())) return;
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td><input type="checkbox" class="selectUser" data-username="${user.username}"></td>
+            <td>${user.username}</td>
+            <td>${user.password}</td>
+            <td>
+                <button class="action-btn" onclick="editUser(${index})">Modifier</button>
+                <button class="action-btn" onclick="deleteUser(${index})">Supprimer</button>
+            </td>
+          `;
+          userTableBody.appendChild(row);
+        });
+      }
+
+      document.getElementById('userForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const username = document.getElementById('newUsername').value;
+        const password = document.getElementById('newPassword').value;
+        addUser(username, password);
+        this.reset();
+      });
+
+      document.getElementById('searchInput').addEventListener('input', function() {
+        renderUsers(this.value);
+      });
+
+      document.getElementById('logoutBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        localStorage.removeItem('authCode');
+        window.location.href = 'connexion.html';
+      });
+
+      document.getElementById('selectAll').addEventListener('change', function() {
+        const checked = this.checked;
+        document.querySelectorAll('.selectUser').forEach(cb => {
+          cb.checked = checked;
+        });
+      });
+
+      document.getElementById('bulkDeleteBtn').addEventListener('click', function() {
+        const selectedUsernames = Array.from(document.querySelectorAll('.selectUser'))
+                                    .filter(cb => cb.checked)
+                                    .map(cb => cb.getAttribute('data-username'));
+        if(selectedUsernames.length === 0) {
+          alert("Aucun utilisateur sélectionné.");
+          return;
+        }
+        if(confirm(`Supprimer ${selectedUsernames.length} utilisateur(s) ?`)) {
+          users = users.filter(user => !selectedUsernames.includes(user.username));
+          localStorage.setItem('users', JSON.stringify(users));
+          renderUsers();
+        }
+      });
+
+      document.getElementById('exportCSVBtn').addEventListener('click', exportCSV);
+
+      document.getElementById('resetDataBtn').addEventListener('click', function() {
+        if(confirm("Voulez-vous vraiment réinitialiser toutes les données utilisateurs ?")) {
+          users = [];
+          localStorage.setItem('users', JSON.stringify(users));
+          renderUsers();
+        }
+      });
+
+      document.getElementById('thUsername').addEventListener('click', function() {
+        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+        renderUsers(document.getElementById('searchInput').value);
+      });
+
+      renderUsers();
+    });
   </script>
 </body>
 </html>
