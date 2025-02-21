@@ -116,13 +116,17 @@
     </form>
   </div>
   <script>
+    // Au chargement, récupère l'objet stocké sous la clé "authCode"
     document.addEventListener("DOMContentLoaded", function() {
-      const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-      if (currentUser) {
-        document.getElementById('currentUserDisplay').textContent = "Connecté en tant que " + currentUser.username;
+      const authCodeData = JSON.parse(localStorage.getItem('authCode'));
+      if (authCodeData && authCodeData.authenticated) {
+        document.getElementById('currentUserDisplay').innerHTML =
+          "Connecté en tant que <strong>" + authCodeData.username + "</strong><br>" +
+          "Code d'authentification : <strong>" + authCodeData.authCode + "</strong><br>" +
+          "Heure de connexion : <strong>" + authCodeData.loginTime + "</strong>";
       } else {
-        // Rediriger vers la page de connexion si aucune donnée de connexion n'est trouvée
-        window.location.href = 'Administrateur.html';
+        // Si aucune session valide, redirige vers la page de connexion
+        window.location.href = 'connexion.html';
       }
     });
 
