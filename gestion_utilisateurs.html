@@ -3,159 +3,222 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Administrateur</title>
+    <title>Page d'Administration</title>
     <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            background-color: #1a1a2e; 
-            color: #fff; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            height: 100vh; 
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a2e;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
-        .login-container { 
-            padding: 20px; 
-            background-color: #16213e; 
-            border-radius: 10px; 
-            box-shadow: 0 0 10px rgba(0,0,0,0.5); 
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .auth-box {
+            background-color: #16213e;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            width: 300px;
             text-align: center;
-            width: 350px;
         }
-        .login-container h2 {
-            margin-bottom: 20px;
+        .auth-box h2 {
             color: #e0e0e0;
+            margin-bottom: 20px;
         }
-        .input-group {
-            margin-bottom: 15px;
-            text-align: left;
+        .auth-box input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 5px;
         }
-        .input-group label {
+        .auth-box button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .auth-box button:hover {
+            background-color: #45a049;
+        }
+        .admin-content {
+            display: none;
+            text-align: center;
+        }
+        header {
+            padding: 20px;
+            background-color: #440469;
+            color: white;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        header img {
+            position: absolute;
+            top: 50%;
+            left: 20px;
+            transform: translateY(-50%);
+            width: 40px;
+        }
+        nav {
+            margin: 20px;
+        }
+        .conteneur {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        #menu {
+            list-style-type: none;
+            padding: 0;
+        }
+        #menu li {
+            margin: 10px 0;
+        }
+        #menu li a {
+            text-decoration: none;
+            color: white;
+            padding: 10px;
             display: block;
-            margin-bottom: 5px;
+            background-color: #01f3e7;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
         }
-        .input-group input {
-            width: 100%;
+        #menu li a:hover {
+            background-color: #6c6e92;
+        }
+        .settings-container {
+            display: none;
+            padding: 20px;
+            background-color: #16213e;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            width: 300px;
+            text-align: center;
+        }
+        .settings-container h2 {
+            color: #e0e0e0;
+            margin-bottom: 20px;
+        }
+        .settings-container button {
             padding: 10px;
+            background-color: #4CAF50;
+            color: white;
             border: none;
             border-radius: 5px;
-            background: #1a1a2e;
-            color: white;
-        }
-        .button {
-            background: #4CAF50;
-            padding: 10px;
-            width: 100%;
-            border: none;
-            border-radius: 5px;
-            color: white;
             cursor: pointer;
             margin-top: 10px;
         }
-        .button:hover {
-            background: #45a049;
+        .settings-container button:hover {
+            background-color: #45a049;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #440469;
+            color: white;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
         }
     </style>
 </head>
 <body>
-    <!-- Vérification du mode maintenance -->
-    <script>
-      document.addEventListener("DOMContentLoaded", function(){
-        if (localStorage.getItem('maintenance') === 'true') {
-          window.location.href = "maintenance.html";
-        }
-      });
-    </script>
-
-    <div class="login-container">
-        <h2>Connexion sécurisée</h2>
-        <div class="input-group">
-            <label for="username">Nom d'utilisateur</label>
-            <input type="text" id="username" placeholder="Votre nom d'utilisateur">
-        </div>
-        <div class="input-group">
-            <label for="password">Mot de passe</label>
-            <input type="password" id="password" placeholder="Votre mot de passe">
-        </div>
-        <div class="input-group">
-            <label for="email">Adresse e-mail</label>
-            <input type="email" id="email" placeholder="Votre adresse e-mail">
-        </div>
-        <button id="login-btn" class="button" onclick="authenticate()">Se connecter</button>
-        <!-- Section pour saisir le code envoyé par email -->
-        <div id="auth-section" style="display: none;">
-            <div class="input-group">
-                <label for="code">Code d'authentification</label>
-                <input type="text" id="code" placeholder="Code à 6 chiffres">
-            </div>
-            <button class="button" onclick="verifyCode()">Vérifier le code</button>
-        </div>
-        <div style="margin-top: 15px;">
-            Pas encore inscrit ? <a href="inscription.html" style="color:#4CAF50;text-decoration:none;">Inscrivez-vous ici</a>
+    <div class="auth-container">
+        <div class="auth-box">
+            <h2>Connexion Administrateur</h2>
+            <input type="text" id="username" placeholder="Nom d'utilisateur" required>
+            <input type="password" id="password" placeholder="Mot de passe" required>
+            <button onclick="authenticate()">Se connecter</button>
         </div>
     </div>
-
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <div class="admin-content">
+        <header>
+            <h1>😊Bienvenue, Shadow</h1>
+            <!-- Affichage de l'heure de connexion -->
+            <p id="loginTimeDisplay"></p>
+        </header>
+        <nav>
+            <div class="conteneur">
+                <ul id="menu">
+                    <li><a href="gestion_utilisateurs.html" id="gestion_utilisateurs">Gestion des utilisateurs</a></li>
+                    <li><a href="parametres.html" id="parametres">Paramètres</a></li>
+                    <li><a href="rapports.html" id="rapports">Rapports</a></li>
+                    <li><a href="support.html" id="support">Support</a></li>
+                </ul>
+            </div>
+        </nav>
+        <div class="settings-container">
+            <h2>Paramètres</h2>
+            <label for="restrictAccess">Restreindre l'accès</label>
+            <select id="restrictAccess">
+                <option value="none">Aucune restriction</option>
+                <option value="gestion_utilisateurs">Restreindre Gestion des utilisateurs</option>
+                <option value="parametres">Restreindre Paramètres</option>
+                <option value="rapports">Restreindre Rapports</option>
+                <option value="support">Restreindre Support</option>
+            </select>
+            <button onclick="applySettings()">Appliquer</button>
+        </div>
+        <footer>
+            <p>© 2025 SHADOW - Tous droits réservés</p>
+        </footer>
+    </div>
     <script>
-        emailjs.init("mxOs-74EXnyBnvarW"); // Remplacez par votre ID utilisateur EmailJS
-
-        // Génère un code à 6 chiffres
-        function generateAuthCode() {
-            return Math.floor(100000 + Math.random() * 900000).toString();
-        }
-
         function authenticate() {
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
-            const email = document.getElementById('email').value.trim();
-            let users = JSON.parse(localStorage.getItem('users')) || [];
-            let user = users.find(user => user.username === username && user.password === password);
+            const defaultUsername = 'shadow';
+            const defaultPassword = '130135';
 
-            if (user) {
-                let authCode = generateAuthCode();
-                let loginTime = new Date().toLocaleString();
-                // Stocke un objet authData contenant le nom, le code, l'heure et le flag authenticated (initialement false)
-                let authData = { username: username, code: authCode, loginTime: loginTime, authenticated: false };
-                localStorage.setItem('authData', JSON.stringify(authData));
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
 
-                // Envoi de l'email avec le code d'authentification
-                sendAuthCodeByEmail(email, authCode);
-
-                alert("Votre code d'authentification a été envoyé à votre adresse e-mail.");
-                document.getElementById('auth-section').style.display = 'block';
-                document.getElementById('login-btn').style.display = 'none';
+            if (username === defaultUsername && password === defaultPassword) {
+                // Stockage de l'utilisateur connecté dans le localStorage avec l'heure de connexion
+                const currentUser = { username: username, role: 'Admin', loginTime: new Date().toLocaleString() };
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                document.querySelector('.auth-container').style.display = 'none';
+                document.querySelector('.admin-content').style.display = 'block';
+                
+                // Affiche l'heure de connexion sur la page de gestion
+                document.getElementById('loginTimeDisplay').textContent = "Heure de connexion : " + currentUser.loginTime;
             } else {
-                alert("Identifiants incorrects.");
+                alert('Nom d\'utilisateur ou mot de passe incorrect.');
             }
         }
 
-        function sendAuthCodeByEmail(email, authCode) {
-            const templateParams = {
-                to_email: email,
-                subject: "Votre code d'authentification",
-                message: `Votre code d'authentification à 6 chiffres est : ${authCode}`
-            };
+        // Redirection des liens en fonction des restrictions
+        document.querySelectorAll('#menu li a').forEach(link => {
+            link.addEventListener('click', function(event) {
+                event.preventDefault();
+                if (!isRestricted(this.id)) {
+                    window.location.href = this.href;
+                } else {
+                    alert('Accès restreint.');
+                }
+            });
+        });
 
-            emailjs.send("service_8hfztp8", "template_16jc455", templateParams)
-                .then((response) => {
-                    console.log("Code envoyé avec succès", response);
-                }, (error) => {
-                    console.error("Erreur lors de l'envoi du code", error);
-                });
+        function applySettings() {
+            const restriction = document.getElementById('restrictAccess').value;
+            localStorage.setItem('pageRestriction', restriction);
+            alert('Paramètres appliqués.');
         }
 
-        function verifyCode() {
-            const inputCode = document.getElementById('code').value.trim();
-            const authData = JSON.parse(localStorage.getItem('authData'));
-
-            if (authData && inputCode === authData.code) {
-                alert("Connexion réussie !");
-                authData.authenticated = true;
-                localStorage.setItem('authData', JSON.stringify(authData));
-                window.location.href = 'menu.html';
-            } else {
-                alert("Code incorrect. Veuillez réessayer.");
-            }
+        function isRestricted(pageId) {
+            const restriction = localStorage.getItem('pageRestriction');
+            return restriction !== 'none' && restriction === pageId;
         }
     </script>
 </body>
